@@ -1411,6 +1411,41 @@
                                   'border-left: 1px solid #8064A2; padding-left: 10px;' : ''}
                             }
                             
+                            /* Speech timing estimate styles */
+                            .timing-badge {
+                                font-weight: normal;
+                                font-style: normal;
+                                color: #666;
+                                background-color: #fff;
+                                border: 1px solid #ddd;
+                                border-radius: 4px;
+                                padding: 1px 6px;
+                                margin-left: 10px;
+                                display: inline-block;
+                                vertical-align: middle;
+                            }
+                            
+                            .total-time-indicator {
+                                background: rgba(39, 174, 96, 0.1);
+                                border: 1px solid rgba(39, 174, 96, 0.3);
+                                border-radius: 6px;
+                                padding: 8px 12px;
+                                margin-bottom: 15px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: space-between;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            
+                            .total-time-indicator .total-time-badge {
+                                background: #27ae60;
+                                color: white;
+                                padding: 3px 8px;
+                                border-radius: 4px;
+                                font-weight: bold;
+                            }
+                            
                             /* Print-specific styles */
                             @media print {
                                 @page {
@@ -1444,17 +1479,68 @@
                     
                     // Process the text content line by line
                     const lines = textInput.split('\n');
-                    lines.forEach(line => {
+                    
+                    // Speech timing estimates (mirrors the preview behavior)
+                    const showTiming = document.getElementById('timingEstimates') && document.getElementById('timingEstimates').checked;
+                    const mainSectionPattern = /^(I\.|II\.|III\.|IV\.|V\.|VI\.|VII\.|VIII\.|IX\.|X\.)/;
+                    const anySectionPattern = /^(I\.|II\.|III\.|IV\.|V\.|VI\.|VII\.|VIII\.|IX\.|X\.|[A-Z]\.)/;
+                    const speakingRateWPM = 130;
+                    
+                    function formatSpeakingTime(wordCount) {
+                        const timeInMinutes = wordCount / speakingRateWPM;
+                        const timeMin = Math.floor(timeInMinutes);
+                        const timeSec = Math.round((timeInMinutes - timeMin) * 60);
+                        return `${timeMin}:${timeSec < 10 ? '0' + timeSec : timeSec}`;
+                    }
+                    
+                    // Count words from startIndex until the next line matching endPattern
+                    function countBlockWords(startIndex, endPattern) {
+                        let blockText = lines[startIndex].trim();
+                        for (let i = startIndex + 1; i < lines.length; i++) {
+                            if (endPattern.test(lines[i].trim())) break;
+                            blockText += ' ' + lines[i];
+                        }
+                        return blockText.split(/\s+/).filter(word => word.length > 0).length;
+                    }
+                    
+                    function timingBadgeHTML(wordCount, fontSize) {
+                        const timeString = formatSpeakingTime(wordCount);
+                        return ` <span class="timing-badge" style="font-size: ${fontSize};" title="${wordCount} words ≈ ${timeString} at average speaking pace">⏱️ ${timeString}</span>`;
+                    }
+                    
+                    // Add total speaking time indicator at the top if timing is enabled
+                    if (showTiming) {
+                        let totalWordCount = 0;
+                        lines.forEach((line, index) => {
+                            if (mainSectionPattern.test(line.trim())) {
+                                totalWordCount += countBlockWords(index, mainSectionPattern);
+                            }
+                        });
+                        
+                        if (totalWordCount > 0) {
+                            const totalTimeString = formatSpeakingTime(totalWordCount);
+                            printContent += `<div class="total-time-indicator" title="${totalWordCount} total words ≈ ${totalTimeString} at average speaking pace (${speakingRateWPM} words/minute)">
+                                <span style="font-weight: bold; color: #333;">Total Speaking Time</span>
+                                <span class="total-time-badge">⏱️ ${totalTimeString}</span>
+                            </div>`;
+                        }
+                    }
+                    
+                    lines.forEach((line, index) => {
                         const trimmedLine = line.trim();
                         if (!trimmedLine) return; // Skip empty lines
                         
                         if (/^(I\.|II\.|III\.|IV\.|V\.|VI\.|VII\.|VIII\.|IX\.|X\.)/.test(trimmedLine)) {
                             // Main section heading
-                            printContent += `<div class="main-heading">${trimmedLine}</div>`;
+                            const timingBadge = showTiming ? 
+                                timingBadgeHTML(countBlockWords(index, mainSectionPattern), '11pt') : '';
+                            printContent += `<div class="main-heading">${trimmedLine}${timingBadge}</div>`;
                         }
                         else if (/^([A-Z]\.)/.test(trimmedLine)) {
                             // Sub-section heading
-                            printContent += `<div class="sub-heading">${trimmedLine}</div>`;
+                            const timingBadge = showTiming ? 
+                                timingBadgeHTML(countBlockWords(index, anySectionPattern), '10pt') : '';
+                            printContent += `<div class="sub-heading">${trimmedLine}${timingBadge}</div>`;
                         }
                         else if (/^(\d+\.)/.test(trimmedLine)) {
                             // Numbered item
