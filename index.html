@@ -1411,6 +1411,15 @@
                                   'border-left: 1px solid #8064A2; padding-left: 10px;' : ''}
                             }
                             
+                            /* Color-coded section styles */
+                            .main-heading.color-coded {
+                                padding: 5px 10px 5px 18px;
+                                border-radius: 8px;
+                                border-bottom: none;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            
                             /* Speech timing estimate styles */
                             .timing-badge {
                                 font-weight: normal;
@@ -1480,6 +1489,30 @@
                     // Process the text content line by line
                     const lines = textInput.split('\n');
                     
+                    // Color-code sections (mirrors the preview behavior)
+                    const alternateColors = document.getElementById('alternateBg') && document.getElementById('alternateBg').checked;
+                    let sectionCounter = 0;
+                    
+                    function sectionColorStyle(counter) {
+                        const even = counter % 2 === 0;
+                        let bg, border, color;
+                        if (visualStyle === 'modern') {
+                            bg = even ? '#e1f0fa' : '#f5eef8';
+                            border = even ? '#3498db' : '#9b59b6';
+                            color = even ? '#2980b9' : '#8e44ad';
+                        } else if (visualStyle === 'classic') {
+                            bg = even ? '#faf3e1' : '#eafaf1';
+                            border = even ? '#f39c12' : '#27ae60';
+                            color = even ? '#a66e19' : '#2ecc71';
+                        } else {
+                            // boardroom / boardroom-color
+                            bg = even ? '#e9eef2' : '#f9ebeb';
+                            border = even ? '#34495e' : '#c0392b';
+                            color = even ? '#2c3e50' : '#a93226';
+                        }
+                        return `background-color: ${bg}; border-left: 8px solid ${border}; color: ${color};`;
+                    }
+                    
                     // Speech timing estimates (mirrors the preview behavior)
                     const showTiming = document.getElementById('timingEstimates') && document.getElementById('timingEstimates').checked;
                     const mainSectionPattern = /^(I\.|II\.|III\.|IV\.|V\.|VI\.|VII\.|VIII\.|IX\.|X\.)/;
@@ -1529,9 +1562,14 @@
                         
                         if (/^(I\.|II\.|III\.|IV\.|V\.|VI\.|VII\.|VIII\.|IX\.|X\.)/.test(trimmedLine)) {
                             // Main section heading
+                            sectionCounter++;
                             const timingBadge = showTiming ? 
                                 timingBadgeHTML(countBlockWords(index, mainSectionPattern), '11pt') : '';
-                            printContent += `<div class="main-heading">${trimmedLine}${timingBadge}</div>`;
+                            if (alternateColors) {
+                                printContent += `<div class="main-heading color-coded" style="${sectionColorStyle(sectionCounter)}">${trimmedLine}${timingBadge}</div>`;
+                            } else {
+                                printContent += `<div class="main-heading">${trimmedLine}${timingBadge}</div>`;
+                            }
                         }
                         else if (/^([A-Z]\.)/.test(trimmedLine)) {
                             // Sub-section heading
