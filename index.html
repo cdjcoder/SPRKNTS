@@ -1330,6 +1330,28 @@
                     const textInput = inputArea.value;
                     const visualStyle = visualStyleSelect.value;
                     
+                    // Speech timing setup (needed for the header total and section badges)
+                    const showTiming = document.getElementById('timingEstimates') && document.getElementById('timingEstimates').checked;
+                    const speakingRateWPM = 130;
+                    
+                    function formatSpeakingTime(wordCount) {
+                        const timeInMinutes = wordCount / speakingRateWPM;
+                        const timeMin = Math.floor(timeInMinutes);
+                        const timeSec = Math.round((timeInMinutes - timeMin) * 60);
+                        return `${timeMin}:${timeSec < 10 ? '0' + timeSec : timeSec}`;
+                    }
+                    
+                    // Total speaking time rendered inline in the header line so it
+                    // does not add any vertical space to the document.
+                    let totalTimeHeaderHTML = '';
+                    if (showTiming) {
+                        const totalWordCount = textInput.split(/\s+/).filter(word => word.length > 0).length;
+                        if (totalWordCount > 0) {
+                            const totalTimeString = formatSpeakingTime(totalWordCount);
+                            totalTimeHeaderHTML = `<span class="header-total-time" title="${totalWordCount} total words ≈ ${totalTimeString} at average speaking pace (${speakingRateWPM} words/minute)">⏱️ Total Speaking Time: ${totalTimeString}</span>`;
+                        }
+                    }
+                    
                     // Create a new window for the printable content
                     const printWindow = window.open('', '_blank');
                     if (!printWindow) {
@@ -1423,7 +1445,9 @@
                                 border-bottom: none;
                             }
                             
-                            /* Speech timing estimate styles */
+                            /* Speech timing estimate styles.
+                               Kept compact (no extra padding or own lines) so enabling
+                               the timing feature does not change the page count. */
                             .timing-badge {
                                 font-weight: normal;
                                 font-style: normal;
@@ -1431,31 +1455,33 @@
                                 background-color: #fff;
                                 border: 1px solid #ddd;
                                 border-radius: 4px;
-                                padding: 1px 6px;
+                                padding: 0 5px;
                                 margin-left: 10px;
                                 display: inline-block;
                                 vertical-align: middle;
+                                line-height: 1.3;
                             }
                             
-                            .total-time-indicator {
-                                background: rgba(39, 174, 96, 0.1);
-                                border: 1px solid rgba(39, 174, 96, 0.3);
-                                border-radius: 6px;
-                                padding: 8px 12px;
-                                margin-bottom: 15px;
-                                display: flex;
-                                align-items: center;
-                                justify-content: space-between;
-                                -webkit-print-color-adjust: exact;
-                                print-color-adjust: exact;
+                            /* Paragraph markers float in the top-right corner of their
+                               paragraph so they occupy no vertical space of their own */
+                            .timing-badge.paragraph-marker {
+                                float: right;
+                                margin: 0 0 2px 8px;
+                                font-size: 9pt;
                             }
                             
-                            .total-time-indicator .total-time-badge {
+                            /* Total speaking time lives inside the existing header line */
+                            .header-total-time {
+                                float: left;
                                 background: #27ae60;
                                 color: white;
-                                padding: 3px 8px;
+                                padding: 0 6px;
                                 border-radius: 4px;
                                 font-weight: bold;
+                                font-size: 10pt;
+                                line-height: 1.5;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
                             }
                             
                             /* Print-specific styles */
@@ -1476,7 +1502,7 @@
                         </style>
                     </head>
                     <body>
-                        <div class="document-header">Generated: ${new Date().toLocaleDateString()}</div>
+                        <div class="document-header">${totalTimeHeaderHTML}Generated: ${new Date().toLocaleDateString()}</div>
                         <div class="no-print" style="background:#f0f0f0; border:1px solid #ccc; padding:15px; margin-bottom:20px;">
                             <h3 style="margin-top:0;">Ready to download</h3>
                             <p>Press <strong>Ctrl+P</strong> (or <strong>Cmd+P</strong> on Mac) to print/save as PDF.</p>
@@ -1517,17 +1543,8 @@
                     }
                     
                     // Speech timing estimates (mirrors the preview behavior)
-                    const showTiming = document.getElementById('timingEstimates') && document.getElementById('timingEstimates').checked;
                     const mainSectionPattern = /^(I\.|II\.|III\.|IV\.|V\.|VI\.|VII\.|VIII\.|IX\.|X\.)/;
                     const anySectionPattern = /^(I\.|II\.|III\.|IV\.|V\.|VI\.|VII\.|VIII\.|IX\.|X\.|[A-Z]\.)/;
-                    const speakingRateWPM = 130;
-                    
-                    function formatSpeakingTime(wordCount) {
-                        const timeInMinutes = wordCount / speakingRateWPM;
-                        const timeMin = Math.floor(timeInMinutes);
-                        const timeSec = Math.round((timeInMinutes - timeMin) * 60);
-                        return `${timeMin}:${timeSec < 10 ? '0' + timeSec : timeSec}`;
-                    }
                     
                     // Count words from startIndex until the next line matching endPattern
                     function countBlockWords(startIndex, endPattern) {
@@ -1554,21 +1571,6 @@
                         const startString = formatSpeakingTime(startWords);
                         const endString = formatSpeakingTime(startWords + wordCount);
                         return ` <span class="timing-badge" style="font-size: ${fontSize};" title="${wordCount} words ≈ ${timeString}; spoken from ${startString} to ${endString} at average speaking pace">⏱️ ${startString} – ${endString}</span>`;
-                    }
-                    
-                    // Add total speaking time indicator at the top if timing is enabled.
-                    // Count the words of the entire text so the total shows even when
-                    // the content has no I./II. outline structure.
-                    if (showTiming) {
-                        const totalWordCount = textInput.split(/\s+/).filter(word => word.length > 0).length;
-                        
-                        if (totalWordCount > 0) {
-                            const totalTimeString = formatSpeakingTime(totalWordCount);
-                            printContent += `<div class="total-time-indicator" title="${totalWordCount} total words ≈ ${totalTimeString} at average speaking pace (${speakingRateWPM} words/minute)">
-                                <span style="font-weight: bold; color: #333;">Total Speaking Time</span>
-                                <span class="total-time-badge">⏱️ ${totalTimeString}</span>
-                            </div>`;
-                        }
                     }
                     
                     // Render a single content line to its HTML string
@@ -1663,7 +1665,8 @@
                                 printContent += `<div style="margin-bottom: 12px;">`;
                             }
                             
-                            // Running time marker for this paragraph
+                            // Running time marker for this paragraph, floated so it
+                            // shares vertical space with the paragraph's first line
                             if (showTiming) {
                                 const paragraphWords = paragraph
                                     .map(entry => entry.line.split(/\s+/).filter(word => word.length > 0).length)
@@ -1671,7 +1674,7 @@
                                 const startString = formatSpeakingTime(cumulativeWords);
                                 const endString = formatSpeakingTime(cumulativeWords + paragraphWords);
                                 cumulativeWords += paragraphWords;
-                                printContent += `<div style="margin-bottom: 4px;"><span class="timing-badge" style="font-size: 10pt; margin-left: 0;" title="${paragraphWords} words; spoken from ${startString} to ${endString} at average speaking pace (${speakingRateWPM} words/minute)">⏱️ ${startString} – ${endString}</span></div>`;
+                                printContent += `<span class="timing-badge paragraph-marker" title="${paragraphWords} words; spoken from ${startString} to ${endString} at average speaking pace (${speakingRateWPM} words/minute)">⏱️ ${startString} – ${endString}</span>`;
                             }
                             
                             paragraph.forEach(entry => {
@@ -1963,17 +1966,18 @@
                             const endString = formatWordsAsTime(cumulativeWords + paragraphWords);
                             cumulativeWords += paragraphWords;
                             
-                            const timeMarker = document.createElement('div');
+                            const timeMarker = document.createElement('span');
                             timeMarker.className = 'paragraph-time-marker';
                             timeMarker.textContent = `⏱️ ${startString} – ${endString}`;
                             timeMarker.title = `${paragraphWords} words; spoken from ${startString} to ${endString} at average speaking pace (130 words/minute)`;
-                            timeMarker.style.fontSize = '10pt';
+                            timeMarker.style.cssFloat = 'right';
+                            timeMarker.style.margin = '0 0 2px 8px';
+                            timeMarker.style.fontSize = '9pt';
                             timeMarker.style.color = '#666';
                             timeMarker.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
                             timeMarker.style.border = '1px solid #ddd';
                             timeMarker.style.borderRadius = '4px';
-                            timeMarker.style.padding = '1px 6px';
-                            timeMarker.style.marginBottom = '4px';
+                            timeMarker.style.padding = '0 5px';
                             timeMarker.style.display = 'inline-block';
                             timeMarker.style.cursor = 'help';
                             wrapper.appendChild(timeMarker);
