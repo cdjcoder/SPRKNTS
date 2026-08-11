@@ -1539,9 +1539,21 @@
                         return blockText.split(/\s+/).filter(word => word.length > 0).length;
                     }
                     
-                    function timingBadgeHTML(wordCount, fontSize) {
+                    // Cumulative word counts before each line, for running time markers
+                    const prefixWords = [];
+                    {
+                        let acc = 0;
+                        lines.forEach((l, i) => {
+                            prefixWords[i] = acc;
+                            acc += l.split(/\s+/).filter(word => word.length > 0).length;
+                        });
+                    }
+                    
+                    function timingBadgeHTML(startWords, wordCount, fontSize) {
                         const timeString = formatSpeakingTime(wordCount);
-                        return ` <span class="timing-badge" style="font-size: ${fontSize};" title="${wordCount} words ≈ ${timeString} at average speaking pace">⏱️ ${timeString}</span>`;
+                        const startString = formatSpeakingTime(startWords);
+                        const endString = formatSpeakingTime(startWords + wordCount);
+                        return ` <span class="timing-badge" style="font-size: ${fontSize};" title="${wordCount} words ≈ ${timeString}; spoken from ${startString} to ${endString} at average speaking pace">⏱️ ${startString} – ${endString}</span>`;
                     }
                     
                     // Add total speaking time indicator at the top if timing is enabled.
@@ -1568,7 +1580,7 @@
                             // Main section heading
                             sectionCounter++;
                             const timingBadge = showTiming ? 
-                                timingBadgeHTML(countBlockWords(index, mainSectionPattern), '11pt') : '';
+                                timingBadgeHTML(prefixWords[index], countBlockWords(index, mainSectionPattern), '11pt') : '';
                             if (alternateColors) {
                                 return `<div class="main-heading color-coded" style="${sectionColorStyle(sectionCounter)}">${trimmedLine}${timingBadge}</div>`;
                             } else {
@@ -1578,7 +1590,7 @@
                         else if (/^([A-Z]\.)/.test(trimmedLine)) {
                             // Sub-section heading
                             const timingBadge = showTiming ? 
-                                timingBadgeHTML(countBlockWords(index, anySectionPattern), '10pt') : '';
+                                timingBadgeHTML(prefixWords[index], countBlockWords(index, anySectionPattern), '10pt') : '';
                             return `<div class="sub-heading">${trimmedLine}${timingBadge}</div>`;
                         }
                         else if (/^(\d+\.)/.test(trimmedLine)) {
@@ -1625,11 +1637,11 @@
                         }
                     }
                     
-                    // If color-coding is on but the content has no I./II. outline structure,
-                    // fall back to color-coding paragraph blocks so the setting still has
-                    // a visible effect on plain, unstructured speeches.
+                    // If color-coding or timing is on but the content has no I./II. outline
+                    // structure, fall back to treating paragraph blocks as sections so both
+                    // settings still have a visible effect on plain, unstructured speeches.
                     const hasMainSections = lines.some(l => mainSectionPattern.test(l.trim()));
-                    if (alternateColors && !hasMainSections) {
+                    if ((alternateColors || showTiming) && !hasMainSections) {
                         // Group lines into paragraphs separated by blank lines (keeping original indices)
                         const paragraphs = [];
                         let currentParagraph = [];
@@ -1643,8 +1655,25 @@
                         });
                         if (currentParagraph.length > 0) paragraphs.push(currentParagraph);
                         
+                        let cumulativeWords = 0;
                         paragraphs.forEach((paragraph, idx) => {
-                            printContent += `<div class="color-coded" style="${sectionColorStyle(idx + 1)} padding: 8px 12px; border-radius: 8px; margin-bottom: 12px;">`;
+                            if (alternateColors) {
+                                printContent += `<div class="color-coded" style="${sectionColorStyle(idx + 1)} padding: 8px 12px; border-radius: 8px; margin-bottom: 12px;">`;
+                            } else {
+                                printContent += `<div style="margin-bottom: 12px;">`;
+                            }
+                            
+                            // Running time marker for this paragraph
+                            if (showTiming) {
+                                const paragraphWords = paragraph
+                                    .map(entry => entry.line.split(/\s+/).filter(word => word.length > 0).length)
+                                    .reduce((a, b) => a + b, 0);
+                                const startString = formatSpeakingTime(cumulativeWords);
+                                const endString = formatSpeakingTime(cumulativeWords + paragraphWords);
+                                cumulativeWords += paragraphWords;
+                                printContent += `<div style="margin-bottom: 4px;"><span class="timing-badge" style="font-size: 10pt; margin-left: 0;" title="${paragraphWords} words; spoken from ${startString} to ${endString} at average speaking pace (${speakingRateWPM} words/minute)">⏱️ ${startString} – ${endString}</span></div>`;
+                            }
+                            
                             paragraph.forEach(entry => {
                                 printContent += lineToHTML(entry.line, entry.index);
                             });
@@ -1863,16 +1892,42 @@
                     { bg: '#f5eef8', border: '#9b59b6', color: '#8e44ad' };
             }
             
+            function countWords(str) {
+                return str.split(/\s+/).filter(word => word.length > 0).length;
+            }
+            
+            // Convert a word count into a m:ss duration at 130 words/minute
+            function formatWordsAsTime(wordCount) {
+                const timeInMinutes = wordCount / 130;
+                const timeMin = Math.floor(timeInMinutes);
+                const timeSec = Math.round((timeInMinutes - timeMin) * 60);
+                return `${timeMin}:${timeSec < 10 ? '0' + timeSec : timeSec}`;
+            }
+            
             // Process content and create elements
-            function processContent(text, container, fontSize, alternateColors, visualStyle) {
+            function processContent(text, container, fontSize, alternateColors, visualStyle, isNestedBlock) {
                 // Split text into lines
                 const lines = text.split('\n');
                 
-                // If color-coding is on but the content has no I./II. outline structure,
-                // fall back to color-coding paragraph blocks so the setting still has
-                // a visible effect on plain, unstructured speeches.
+                // Calculate timing estimates if enabled
+                const showTiming = document.getElementById('timingEstimates') && document.getElementById('timingEstimates').checked;
+                
+                // Cumulative word counts before each line, for running time markers
+                let prefixWords = null;
+                if (showTiming) {
+                    prefixWords = [];
+                    let acc = 0;
+                    lines.forEach((l, i) => {
+                        prefixWords[i] = acc;
+                        acc += countWords(l);
+                    });
+                }
+                
+                // If color-coding or timing is on but the content has no I./II. outline
+                // structure, fall back to treating paragraph blocks as sections so both
+                // settings still have a visible effect on plain, unstructured speeches.
                 const hasMainSections = lines.some(l => /^(I\.|II\.|III\.|IV\.|V\.|VI\.|VII\.|VIII\.|IX\.|X\.)/.test(l.trim()));
-                if (alternateColors && !hasMainSections) {
+                if ((alternateColors || showTiming) && !hasMainSections && !isNestedBlock) {
                     // Group lines into paragraphs separated by blank lines
                     const paragraphs = [];
                     let currentParagraph = [];
@@ -1886,20 +1941,47 @@
                     });
                     if (currentParagraph.length > 0) paragraphs.push(currentParagraph);
                     
+                    let cumulativeWords = 0;
                     paragraphs.forEach((paragraphLines, idx) => {
-                        const colors = getAlternateColors(idx + 1, visualStyle);
                         const wrapper = document.createElement('div');
-                        wrapper.className = 'color-coded-paragraph';
-                        wrapper.style.backgroundColor = colors.bg;
-                        wrapper.style.borderLeft = `8px solid ${colors.border}`;
-                        wrapper.style.borderRadius = '8px';
-                        wrapper.style.padding = '8px 12px';
                         wrapper.style.marginBottom = '12px';
-                        wrapper.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+                        
+                        if (alternateColors) {
+                            const colors = getAlternateColors(idx + 1, visualStyle);
+                            wrapper.className = 'color-coded-paragraph';
+                            wrapper.style.backgroundColor = colors.bg;
+                            wrapper.style.borderLeft = `8px solid ${colors.border}`;
+                            wrapper.style.borderRadius = '8px';
+                            wrapper.style.padding = '8px 12px';
+                            wrapper.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+                        }
+                        
+                        // Add a running time marker for this paragraph
+                        if (showTiming) {
+                            const paragraphWords = countWords(paragraphLines.join(' '));
+                            const startString = formatWordsAsTime(cumulativeWords);
+                            const endString = formatWordsAsTime(cumulativeWords + paragraphWords);
+                            cumulativeWords += paragraphWords;
+                            
+                            const timeMarker = document.createElement('div');
+                            timeMarker.className = 'paragraph-time-marker';
+                            timeMarker.textContent = `⏱️ ${startString} – ${endString}`;
+                            timeMarker.title = `${paragraphWords} words; spoken from ${startString} to ${endString} at average speaking pace (130 words/minute)`;
+                            timeMarker.style.fontSize = '10pt';
+                            timeMarker.style.color = '#666';
+                            timeMarker.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+                            timeMarker.style.border = '1px solid #ddd';
+                            timeMarker.style.borderRadius = '4px';
+                            timeMarker.style.padding = '1px 6px';
+                            timeMarker.style.marginBottom = '4px';
+                            timeMarker.style.display = 'inline-block';
+                            timeMarker.style.cursor = 'help';
+                            wrapper.appendChild(timeMarker);
+                        }
                         
                         // Render the paragraph's lines with the normal logic
                         // (alternateColors off — the wrapper already provides the color)
-                        processContent(paragraphLines.join('\n'), wrapper, fontSize, false, visualStyle);
+                        processContent(paragraphLines.join('\n'), wrapper, fontSize, false, visualStyle, true);
                         container.appendChild(wrapper);
                     });
                     return;
@@ -1914,11 +1996,8 @@
                 // Track section count for alternating colors
                 let sectionCounter = 0;
                 
-                // Calculate timing estimates if enabled
-                const showTiming = document.getElementById('timingEstimates') && document.getElementById('timingEstimates').checked;
-                
                 // Process each line
-                lines.forEach(line => {
+                lines.forEach((line, lineIndex) => {
                     const trimmedLine = line.trim();
                     if (!trimmedLine) return; // Skip empty lines
                     
@@ -1942,7 +2021,7 @@
                             let sectionText = trimmedLine;
                             
                             // Find all lines that belong to this section until next main section
-                            let startIndex = lines.indexOf(line) + 1;
+                            let startIndex = lineIndex + 1;
                             let endIndex = lines.length;
                             
                             // Find where this section ends (at the next main section)
@@ -1964,17 +2043,15 @@
                             if (!window.totalWordCount) window.totalWordCount = 0;
                             window.totalWordCount += wordCount;
                             
-                            // Calculate time based on average speaking rate (130 words per minute)
-                            const speakingRateWPM = 130;
-                            const timeInMinutes = wordCount / speakingRateWPM;
-                            const timeMin = Math.floor(timeInMinutes);
-                            const timeSec = Math.round((timeInMinutes - timeMin) * 60);
-                            const timeString = `${timeMin}:${timeSec < 10 ? '0' + timeSec : timeSec}`;
+                            // Duration plus the running time window from the start of the speech
+                            const timeString = formatWordsAsTime(wordCount);
+                            const startString = formatWordsAsTime(prefixWords[lineIndex]);
+                            const endString = formatWordsAsTime(prefixWords[lineIndex] + wordCount);
                             
                             // Create timing badge
                             const timingBadge = document.createElement('span');
-                            timingBadge.textContent = `⏱️ ${timeString}`;
-                            timingBadge.title = `${wordCount} words ≈ ${timeString} at average speaking pace`;
+                            timingBadge.textContent = `⏱️ ${startString} – ${endString}`;
+                            timingBadge.title = `${wordCount} words ≈ ${timeString}; spoken from ${startString} to ${endString} at average speaking pace`;
                             timingBadge.style.fontSize = '12pt';
                             timingBadge.style.color = '#666';
                             timingBadge.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
@@ -2083,7 +2160,7 @@
                             let subsectionText = trimmedLine;
                             
                             // Find all lines that belong to this subsection until next subsection or main section
-                            let startIndex = lines.indexOf(line) + 1;
+                            let startIndex = lineIndex + 1;
                             let endIndex = lines.length;
                             
                             // Find where this subsection ends
@@ -2101,19 +2178,15 @@
                             // Count words
                             const wordCount = subsectionText.split(/\s+/).filter(word => word.length > 0).length;
                             
-                            // Calculate time based on average speaking rate (130 words per minute)
-                            const speakingRateWPM = 130;
-                            const timeInMinutes = wordCount / speakingRateWPM;
-                            const timeMin = Math.floor(timeInMinutes);
-                            const timeSec = Math.round((timeInMinutes - timeMin) * 60);
-                            const timeString = timeMin > 0 ? 
-                                `${timeMin}:${timeSec < 10 ? '0' + timeSec : timeSec}` : 
-                                `0:${timeSec < 10 ? '0' + timeSec : timeSec}`;
+                            // Duration plus the running time window from the start of the speech
+                            const timeString = formatWordsAsTime(wordCount);
+                            const startString = formatWordsAsTime(prefixWords[lineIndex]);
+                            const endString = formatWordsAsTime(prefixWords[lineIndex] + wordCount);
                             
                             // Create timing badge
                             const timingBadge = document.createElement('span');
-                            timingBadge.textContent = `⏱️ ${timeString}`;
-                            timingBadge.title = `${wordCount} words ≈ ${timeString} at average speaking pace`;
+                            timingBadge.textContent = `⏱️ ${startString} – ${endString}`;
+                            timingBadge.title = `${wordCount} words ≈ ${timeString}; spoken from ${startString} to ${endString} at average speaking pace`;
                             timingBadge.style.fontSize = '10pt';
                             timingBadge.style.color = '#666';
                             timingBadge.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
