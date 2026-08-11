@@ -1508,14 +1508,11 @@
                         return ` <span class="timing-badge" style="font-size: ${fontSize};" title="${wordCount} words ≈ ${timeString} at average speaking pace">⏱️ ${timeString}</span>`;
                     }
                     
-                    // Add total speaking time indicator at the top if timing is enabled
+                    // Add total speaking time indicator at the top if timing is enabled.
+                    // Count the words of the entire text so the total shows even when
+                    // the content has no I./II. outline structure.
                     if (showTiming) {
-                        let totalWordCount = 0;
-                        lines.forEach((line, index) => {
-                            if (mainSectionPattern.test(line.trim())) {
-                                totalWordCount += countBlockWords(index, mainSectionPattern);
-                            }
-                        });
+                        const totalWordCount = textInput.split(/\s+/).filter(word => word.length > 0).length;
                         
                         if (totalWordCount > 0) {
                             const totalTimeString = formatSpeakingTime(totalWordCount);
@@ -1679,10 +1676,13 @@
                 // Process content and create preview
                 processContent(text, previewPage, fontSize, alternateColors, visualStyle);
                 
-                // Add a total time indicator at the top if timing is enabled
-                if (showTiming && window.totalWordCount > 0) {
+                // Add a total time indicator at the top if timing is enabled.
+                // Count the words of the entire text so the total shows even when
+                // the content has no I./II. outline structure.
+                const totalWordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+                if (showTiming && totalWordCount > 0) {
                     const speakingRateWPM = 130;
-                    const totalTimeInMinutes = window.totalWordCount / speakingRateWPM;
+                    const totalTimeInMinutes = totalWordCount / speakingRateWPM;
                     const totalMin = Math.floor(totalTimeInMinutes);
                     const totalSec = Math.round((totalTimeInMinutes - totalMin) * 60);
                     const totalTimeString = `${totalMin}:${totalSec < 10 ? '0' + totalSec : totalSec}`;
@@ -1694,7 +1694,7 @@
                         <span style="font-weight: bold; color: #333;">Total Speaking Time</span>
                         <span style="background: #27ae60; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold;">⏱️ ${totalTimeString}</span>
                     </div>`;
-                    totalTimeIndicator.title = `${window.totalWordCount} total words ≈ ${totalTimeString} at average speaking pace (130 words/minute)`;
+                    totalTimeIndicator.title = `${totalWordCount} total words ≈ ${totalTimeString} at average speaking pace (130 words/minute)`;
                     totalTimeIndicator.style.cursor = 'help';
                     
                     // Add to top of preview container
@@ -1736,6 +1736,27 @@
                 header.style.color = '#666666';
                 header.innerHTML = `<strong>Generated:</strong> ${new Date().toLocaleDateString()}`;
                 container.appendChild(header);
+                
+                // Add total speaking time indicator if timing is enabled
+                const showTiming = document.getElementById('timingEstimates') && document.getElementById('timingEstimates').checked;
+                const totalWordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+                if (showTiming && totalWordCount > 0) {
+                    const speakingRateWPM = 130;
+                    const totalTimeInMinutes = totalWordCount / speakingRateWPM;
+                    const totalMin = Math.floor(totalTimeInMinutes);
+                    const totalSec = Math.round((totalTimeInMinutes - totalMin) * 60);
+                    const totalTimeString = `${totalMin}:${totalSec < 10 ? '0' + totalSec : totalSec}`;
+                    
+                    const totalTimeIndicator = document.createElement('div');
+                    totalTimeIndicator.className = 'total-time-indicator';
+                    totalTimeIndicator.innerHTML = `<div style="background: rgba(39, 174, 96, 0.1); border: 1px solid rgba(39, 174, 96, 0.3); border-radius: 6px; padding: 8px 12px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-weight: bold; color: #333;">Total Speaking Time</span>
+                        <span style="background: #27ae60; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold;">⏱️ ${totalTimeString}</span>
+                    </div>`;
+                    totalTimeIndicator.title = `${totalWordCount} total words ≈ ${totalTimeString} at average speaking pace (${speakingRateWPM} words/minute)`;
+                    totalTimeIndicator.style.cursor = 'help';
+                    container.appendChild(totalTimeIndicator);
+                }
                 
                 // Create preview page with proper style class
                 const previewPage = document.createElement('div');
