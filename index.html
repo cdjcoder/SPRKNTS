@@ -1412,12 +1412,15 @@
                             }
                             
                             /* Color-coded section styles */
+                            .color-coded {
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            
                             .main-heading.color-coded {
                                 padding: 5px 10px 5px 18px;
                                 border-radius: 8px;
                                 border-bottom: none;
-                                -webkit-print-color-adjust: exact;
-                                print-color-adjust: exact;
                             }
                             
                             /* Speech timing estimate styles */
@@ -1556,9 +1559,10 @@
                         }
                     }
                     
-                    lines.forEach((line, index) => {
+                    // Render a single content line to its HTML string
+                    function lineToHTML(line, index) {
                         const trimmedLine = line.trim();
-                        if (!trimmedLine) return; // Skip empty lines
+                        if (!trimmedLine) return ''; // Skip empty lines
                         
                         if (/^(I\.|II\.|III\.|IV\.|V\.|VI\.|VII\.|VIII\.|IX\.|X\.)/.test(trimmedLine)) {
                             // Main section heading
@@ -1566,16 +1570,16 @@
                             const timingBadge = showTiming ? 
                                 timingBadgeHTML(countBlockWords(index, mainSectionPattern), '11pt') : '';
                             if (alternateColors) {
-                                printContent += `<div class="main-heading color-coded" style="${sectionColorStyle(sectionCounter)}">${trimmedLine}${timingBadge}</div>`;
+                                return `<div class="main-heading color-coded" style="${sectionColorStyle(sectionCounter)}">${trimmedLine}${timingBadge}</div>`;
                             } else {
-                                printContent += `<div class="main-heading">${trimmedLine}${timingBadge}</div>`;
+                                return `<div class="main-heading">${trimmedLine}${timingBadge}</div>`;
                             }
                         }
                         else if (/^([A-Z]\.)/.test(trimmedLine)) {
                             // Sub-section heading
                             const timingBadge = showTiming ? 
                                 timingBadgeHTML(countBlockWords(index, anySectionPattern), '10pt') : '';
-                            printContent += `<div class="sub-heading">${trimmedLine}${timingBadge}</div>`;
+                            return `<div class="sub-heading">${trimmedLine}${timingBadge}</div>`;
                         }
                         else if (/^(\d+\.)/.test(trimmedLine)) {
                             // Numbered item
@@ -1605,21 +1609,52 @@
                                         }
                                     }
                                     
-                                    printContent += `<div class="item"><span style="color: ${numColor}">${num}.</span> ${itemText}</div>`;
+                                    return `<div class="item"><span style="color: ${numColor}">${num}.</span> ${itemText}</div>`;
                                 } else {
-                                    printContent += `<div class="item">${trimmedLine}</div>`;
+                                    return `<div class="item">${trimmedLine}</div>`;
                                 }
                             } else {
-                                printContent += `<div class="item">${trimmedLine}</div>`;
+                                return `<div class="item">${trimmedLine}</div>`;
                             }
                         }
                         else {
                             // Note/regular text
                             // Handle bold text with ** markers
                             let formattedText = trimmedLine.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                            printContent += `<div class="note">${formattedText}</div>`;
+                            return `<div class="note">${formattedText}</div>`;
                         }
-                    });
+                    }
+                    
+                    // If color-coding is on but the content has no I./II. outline structure,
+                    // fall back to color-coding paragraph blocks so the setting still has
+                    // a visible effect on plain, unstructured speeches.
+                    const hasMainSections = lines.some(l => mainSectionPattern.test(l.trim()));
+                    if (alternateColors && !hasMainSections) {
+                        // Group lines into paragraphs separated by blank lines (keeping original indices)
+                        const paragraphs = [];
+                        let currentParagraph = [];
+                        lines.forEach((line, index) => {
+                            if (line.trim()) {
+                                currentParagraph.push({ line, index });
+                            } else if (currentParagraph.length > 0) {
+                                paragraphs.push(currentParagraph);
+                                currentParagraph = [];
+                            }
+                        });
+                        if (currentParagraph.length > 0) paragraphs.push(currentParagraph);
+                        
+                        paragraphs.forEach((paragraph, idx) => {
+                            printContent += `<div class="color-coded" style="${sectionColorStyle(idx + 1)} padding: 8px 12px; border-radius: 8px; margin-bottom: 12px;">`;
+                            paragraph.forEach(entry => {
+                                printContent += lineToHTML(entry.line, entry.index);
+                            });
+                            printContent += `</div>`;
+                        });
+                    } else {
+                        lines.forEach((line, index) => {
+                            printContent += lineToHTML(line, index);
+                        });
+                    }
                     
                     // Close the HTML content
                     printContent += `</body></html>`;
@@ -1810,10 +1845,65 @@
                 container.appendChild(previewPage);
             }
             
+            // Alternating color palette shared by sections and paragraph blocks
+            function getAlternateColors(counter, visualStyle) {
+                const even = counter % 2 === 0;
+                if (visualStyle === 'classic') {
+                    return even ?
+                        { bg: '#faf3e1', border: '#f39c12', color: '#a66e19' } :
+                        { bg: '#eafaf1', border: '#27ae60', color: '#2ecc71' };
+                } else if (visualStyle === 'boardroom' || visualStyle === 'boardroom-color') {
+                    return even ?
+                        { bg: '#e9eef2', border: '#34495e', color: '#2c3e50' } :
+                        { bg: '#f9ebeb', border: '#c0392b', color: '#a93226' };
+                }
+                // modern (default)
+                return even ?
+                    { bg: '#e1f0fa', border: '#3498db', color: '#2980b9' } :
+                    { bg: '#f5eef8', border: '#9b59b6', color: '#8e44ad' };
+            }
+            
             // Process content and create elements
             function processContent(text, container, fontSize, alternateColors, visualStyle) {
                 // Split text into lines
                 const lines = text.split('\n');
+                
+                // If color-coding is on but the content has no I./II. outline structure,
+                // fall back to color-coding paragraph blocks so the setting still has
+                // a visible effect on plain, unstructured speeches.
+                const hasMainSections = lines.some(l => /^(I\.|II\.|III\.|IV\.|V\.|VI\.|VII\.|VIII\.|IX\.|X\.)/.test(l.trim()));
+                if (alternateColors && !hasMainSections) {
+                    // Group lines into paragraphs separated by blank lines
+                    const paragraphs = [];
+                    let currentParagraph = [];
+                    lines.forEach(l => {
+                        if (l.trim()) {
+                            currentParagraph.push(l);
+                        } else if (currentParagraph.length > 0) {
+                            paragraphs.push(currentParagraph);
+                            currentParagraph = [];
+                        }
+                    });
+                    if (currentParagraph.length > 0) paragraphs.push(currentParagraph);
+                    
+                    paragraphs.forEach((paragraphLines, idx) => {
+                        const colors = getAlternateColors(idx + 1, visualStyle);
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'color-coded-paragraph';
+                        wrapper.style.backgroundColor = colors.bg;
+                        wrapper.style.borderLeft = `8px solid ${colors.border}`;
+                        wrapper.style.borderRadius = '8px';
+                        wrapper.style.padding = '8px 12px';
+                        wrapper.style.marginBottom = '12px';
+                        wrapper.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+                        
+                        // Render the paragraph's lines with the normal logic
+                        // (alternateColors off — the wrapper already provides the color)
+                        processContent(paragraphLines.join('\n'), wrapper, fontSize, false, visualStyle);
+                        container.appendChild(wrapper);
+                    });
+                    return;
+                }
                 
                 // Variables to track current section
                 let currentSection = null;
