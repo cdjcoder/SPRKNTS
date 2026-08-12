@@ -574,6 +574,14 @@
            own distinct look for headings, items and speaker notes. These
            rules are mirrored in the generated (print/PDF) document. */
 
+        /* Fourth outline level (a., b., c. — specific examples), shared
+           default for all styles; individual styles may override it */
+        .preview-page .section-level-4 {
+            font-weight: 500;
+            margin-left: 60px;
+            margin-bottom: 5px;
+        }
+
         /* Modern: purple/indigo accents, clean sans-serif */
         .modern-style .section-level-1 {
             font-weight: bold;
@@ -645,6 +653,14 @@
             margin-bottom: 6px;
         }
 
+        .outline-style .section-level-4 {
+            font-weight: 400;
+            font-size: 12pt;
+            color: #374151;
+            margin-left: 52px;
+            margin-bottom: 6px;
+        }
+
         .outline-style .speaker-note {
             font-style: italic;
             color: #9ca3af;
@@ -654,6 +670,53 @@
             margin-bottom: 12px;
             padding-left: 12px;
             border-left: 3px solid #e5e7eb;
+        }
+
+        /* Alphanumeric Outline: strict formal outline structure —
+           I. (main topics), A. (major sub-points), 1. (supporting details),
+           a. (specific examples) — expressed purely through typography and
+           a rigid downward indentation ladder */
+        .alphanumeric-style .section-level-1 {
+            font-weight: 700;
+            font-size: 16pt;
+            color: #1a1a1a;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #cccccc;
+        }
+
+        .alphanumeric-style .section-level-2 {
+            font-weight: 600;
+            font-size: 14pt;
+            color: #2c2c2c;
+            margin-left: 28px;
+            margin-bottom: 8px;
+        }
+
+        .alphanumeric-style .section-level-3 {
+            font-weight: 500;
+            font-size: 13pt;
+            color: #3c3c3c;
+            margin-left: 56px;
+            margin-bottom: 6px;
+        }
+
+        .alphanumeric-style .section-level-4 {
+            font-weight: 400;
+            font-size: 12.5pt;
+            color: #4a4a4a;
+            margin-left: 84px;
+            margin-bottom: 6px;
+        }
+
+        .alphanumeric-style .speaker-note {
+            font-style: italic;
+            color: #8a8a8a;
+            margin-left: 104px;
+            display: block;
+            font-size: 12pt;
+            margin-bottom: 8px;
         }
 
         /* Classic: traditional serif outline with centered small-caps headings */
@@ -1236,6 +1299,7 @@
                                     <select id="visualStyle">
                                         <option value="modern" selected>Modern</option>
                                         <option value="outline">Numbered Outline</option>
+                                        <option value="alphanumeric">Alphanumeric Outline</option>
                                         <option value="classic">Classic</option>
                                         <option value="boardroom">Boardroom</option>
                                         <option value="boardroom-color">Boardroom (Full Color)</option>
@@ -1246,7 +1310,7 @@
                                 </div>
                             </div>
                             
-                            <textarea id="inputArea" placeholder="Paste your content here. Use formatting like:&#10;&#10;I. MAIN SECTION&#10;A. Subsection&#10;1. Item&#10;Speaker note or additional text&#10;&#10;Try the sample content to see how it works."></textarea>
+                            <textarea id="inputArea" placeholder="Paste your content here. Use formatting like:&#10;&#10;I. MAIN SECTION&#10;A. Subsection&#10;1. Item&#10;a. Specific example&#10;Speaker note or additional text&#10;&#10;Try the sample content to see how it works."></textarea>
                         </div>
                     </div>
                 </div>
@@ -1427,7 +1491,7 @@
             const closeModal = document.getElementById('closeModal');
 
             // Sample content to initialize with
-            const sampleContent = `I. OPENING REMARKS\nA. Welcome and Introduction\n1. Thank everyone for joining today's session\nHighlight importance of this topic for our organization\n2. Review agenda and timeline\nMention materials available in digital handouts\n\nII. QUARTERLY PERFORMANCE REVIEW\nA. Financial Results\n1. Revenue growth exceeded targets by 12%\nNote significant improvement in enterprise sector\n2. Expenses remained under budget\nPraise team for cost-saving initiatives\n\nB. Key Accomplishments\n1. Successfully launched new product line\nAsk marketing to share customer feedback stats\n2. Completed office expansion ahead of schedule\nThank facilities team for seamless transition\n\nIII. UPCOMING INITIATIVES\nA. Strategic Planning\n1. Introduce new 5-year roadmap\nRequest department heads to schedule follow-up meetings\n2. Discuss market expansion opportunities\nRaise question about competitive landscape`;
+            const sampleContent = `I. OPENING REMARKS\nA. Welcome and Introduction\n1. Thank everyone for joining today's session\nHighlight importance of this topic for our organization\n2. Review agenda and timeline\nMention materials available in digital handouts\n\nII. QUARTERLY PERFORMANCE REVIEW\nA. Financial Results\n1. Revenue growth exceeded targets by 12%\nNote significant improvement in enterprise sector\n2. Expenses remained under budget\nPraise team for cost-saving initiatives\n\nB. Key Accomplishments\n1. Successfully launched new product line\na. Enterprise tier exceeded first-month forecasts\nb. Early customer reviews averaging 4.8 stars\nAsk marketing to share customer feedback stats\n2. Completed office expansion ahead of schedule\nThank facilities team for seamless transition\n\nIII. UPCOMING INITIATIVES\nA. Strategic Planning\n1. Introduce new 5-year roadmap\nRequest department heads to schedule follow-up meetings\n2. Discuss market expansion opportunities\nRaise question about competitive landscape`;
 
             // Initialize with sample text
             inputArea.value = sampleContent;
@@ -1669,6 +1733,12 @@
                                 margin-bottom: 4px;
                             }
                             
+                            .sub-item {
+                                font-size: 11pt;
+                                margin-left: 60px;
+                                margin-bottom: 4px;
+                            }
+                            
                             .note {
                                 font-size: 11pt;
                                 font-style: italic;
@@ -1840,6 +1910,14 @@
                                 }
                             }
                             return `<div class="item">${trimmedLine}</div>`;
+                        }
+                        else if (/^[a-z]\.\s/.test(trimmedLine)) {
+                            // Lowercase-letter sub-item (a, b, c — specific examples)
+                            if (visualStyle === 'outline') {
+                                const m = trimmedLine.match(/^([a-z])\.\s*(.*)$/);
+                                return `<div class="sub-item"><span style="color: #111827; font-weight: bold;">${m[1]}.</span> ${m[2]}</div>`;
+                            }
+                            return `<div class="sub-item">${trimmedLine}</div>`;
                         }
                         else {
                             // Note/regular text
@@ -2164,12 +2242,45 @@
                                 color: #1f2937;
                                 margin: 10px 0 5px 30px;
                             }
+                            .sub-item {
+                                font-weight: 400;
+                                color: #374151;
+                                margin: 0 0 5px 44px;
+                            }
                             .note {
                                 font-style: italic;
                                 color: #9ca3af;
                                 border-left: 3px solid #e5e7eb;
                                 padding-left: 10px;
                                 margin: 0 0 12px 44px;
+                            }
+                        `;
+                    case 'alphanumeric':
+                        return `
+                            .main-heading {
+                                color: #1a1a1a;
+                                letter-spacing: 0.5px;
+                                border-bottom: 1px solid #cccccc;
+                                padding-bottom: 4px;
+                                margin: 18px 0 10px;
+                            }
+                            .sub-heading {
+                                font-weight: 600;
+                                color: #2c2c2c;
+                                margin-left: 25px;
+                            }
+                            .item {
+                                font-weight: 500;
+                                color: #3c3c3c;
+                                margin-left: 50px;
+                            }
+                            .sub-item {
+                                color: #4a4a4a;
+                                margin-left: 75px;
+                            }
+                            .note {
+                                color: #8a8a8a;
+                                margin-left: 95px;
                             }
                         `;
                     case 'classic':
@@ -2520,6 +2631,26 @@
                         container.appendChild(currentItem);
                         
                         // Reset notes
+                        notes = [];
+                    }
+                    else if (/^[a-z]\.\s/.test(trimmedLine)) {
+                        // Lowercase-letter sub-item (a, b, c — specific examples),
+                        // the fourth level of an alphanumeric outline
+                        renderCurrentContent(container);
+                        
+                        const subItem = document.createElement('div');
+                        subItem.className = 'section-level-4';
+                        subItem.style.fontSize = `${parseInt(fontSize)}pt`;
+                        
+                        if (visualStyle === 'outline') {
+                            // Match the Numbered Outline items: bold dark marker, regular text
+                            const m = trimmedLine.match(/^([a-z])\.\s*(.*)$/);
+                            subItem.innerHTML = `<span style="color: #111827; font-weight: bold;">${m[1]}.</span> ${m[2]}`;
+                        } else {
+                            subItem.textContent = trimmedLine;
+                        }
+                        
+                        container.appendChild(subItem);
                         notes = [];
                     }
                     else {
