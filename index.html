@@ -612,6 +612,50 @@
             border-left: 2px solid rgba(147, 51, 234, 0.3);
         }
 
+        /* Numbered Outline: soft rounded gradient banners for main sections,
+           indigo subheadings with a thin bar, bold dark item numbers and
+           light-gray note bars. Alternating purple/blue banner colors come
+           from the color-coding palette (on by default for this style). */
+        .outline-style .section-level-1 {
+            font-weight: 700;
+            font-size: 17pt;
+            color: #9333ea;
+            background: linear-gradient(90deg, #ecdcf9, #f9f4fe);
+            border-left: 5px solid #bf9bea;
+            border-radius: 8px;
+            padding: 8px 14px;
+            margin-bottom: 18px;
+        }
+
+        .outline-style .section-level-2 {
+            font-weight: 600;
+            font-size: 15pt;
+            color: #4f46e5;
+            margin-left: 14px;
+            margin-bottom: 12px;
+            padding: 2px 0 2px 12px;
+            border-left: 3px solid #4f46e5;
+        }
+
+        .outline-style .section-level-3 {
+            font-weight: 500;
+            font-size: 13pt;
+            color: #1f2937;
+            margin-left: 34px;
+            margin-bottom: 6px;
+        }
+
+        .outline-style .speaker-note {
+            font-style: italic;
+            color: #9ca3af;
+            margin-left: 52px;
+            display: block;
+            font-size: 12pt;
+            margin-bottom: 12px;
+            padding-left: 12px;
+            border-left: 3px solid #e5e7eb;
+        }
+
         /* Classic: traditional serif outline with centered small-caps headings */
         .classic-style {
             font-family: Georgia, 'Times New Roman', serif;
@@ -1177,7 +1221,7 @@
                                     <input type="checkbox" id="alternateBg" checked>
                                     <label for="alternateBg"><strong>Color-Code Sections</strong></label>
                                     <span id="altColorStatus" style="margin-left: 5px; font-size: 12px; color: #27ae60; font-weight: bold;">(ON)</span>
-                                    <span class="tooltip">Toggle color-coding to dramatically highlight different sections for easier navigation!<br><small>(Only available for Modern, Boardroom (Full Color) and Vibrant styles)</small></span>
+                                    <span class="tooltip">Toggle color-coding to dramatically highlight different sections for easier navigation!<br><small>(Only available for Modern, Numbered Outline, Boardroom (Full Color) and Vibrant styles)</small></span>
                                 </div>
                                 
                                 <div class="setting-group" data-feature="timing-estimates">
@@ -1191,6 +1235,7 @@
                                     <label for="visualStyle">Visual Style</label>
                                     <select id="visualStyle">
                                         <option value="modern" selected>Modern</option>
+                                        <option value="outline">Numbered Outline</option>
                                         <option value="classic">Classic</option>
                                         <option value="boardroom">Boardroom</option>
                                         <option value="boardroom-color">Boardroom (Full Color)</option>
@@ -1389,7 +1434,7 @@
 
             // Styles that support the Color-Code Sections feature
             function styleSupportsColorCoding(style) {
-                return style === 'modern' || style === 'boardroom-color' || style === 'vibrant';
+                return style === 'modern' || style === 'outline' || style === 'boardroom-color' || style === 'vibrant';
             }
             
             // Store the last color-coding state for styles that support it
@@ -1727,7 +1772,7 @@
                         const colors = getAlternateColors(counter, visualStyle);
                         // 'background' shorthand (not background-color) so it also
                         // replaces gradient backgrounds used by some styles
-                        return `background: ${colors.bg}; border-left: 8px solid ${colors.border}; color: ${colors.color};`;
+                        return `background: ${colors.bg}; border-left: ${colors.borderWidth || '8px'} solid ${colors.border}; color: ${colors.color};`;
                     }
                     
                     // Speech timing estimates (mirrors the preview behavior)
@@ -1789,7 +1834,7 @@
                             if (match) {
                                 const numColor = getNumberColor(match[1], visualStyle);
                                 if (numColor) {
-                                    return `<div class="item"><span style="color: ${numColor}">${match[1]}.</span> ${match[2].trim()}</div>`;
+                                    return `<div class="item"><span style="color: ${numColor}; font-weight: bold;">${match[1]}.</span> ${match[2].trim()}</div>`;
                                 }
                             }
                             return `<div class="item">${trimmedLine}</div>`;
@@ -2040,10 +2085,16 @@
                 container.appendChild(previewPage);
             }
             
-            // Alternating color palette shared by sections and paragraph blocks
+            // Alternating color palette shared by sections and paragraph blocks.
+            // 'bg' may be any CSS background value (including gradients) and
+            // 'borderWidth' optionally overrides the default 8px accent bar.
             function getAlternateColors(counter, visualStyle) {
                 const even = counter % 2 === 0;
-                if (visualStyle === 'classic') {
+                if (visualStyle === 'outline') {
+                    return even ?
+                        { bg: 'linear-gradient(90deg, #d9ecf8, #f0f8fe)', border: '#7ab8e0', color: '#0f628f', borderWidth: '5px' } :
+                        { bg: 'linear-gradient(90deg, #ecdcf9, #f9f4fe)', border: '#bf9bea', color: '#9333ea', borderWidth: '5px' };
+                } else if (visualStyle === 'classic') {
                     return even ?
                         { bg: '#faf3e1', border: '#f39c12', color: '#a66e19' } :
                         { bg: '#eafaf1', border: '#27ae60', color: '#2ecc71' };
@@ -2071,6 +2122,7 @@
             function getNumberColor(number, visualStyle) {
                 const palettes = {
                     'modern': ['#27ae60', '#3498db', '#e74c3c'],
+                    'outline': ['#111827'], // constant dark number, emphasized by bold weight
                     'boardroom-color': ['#00457C', '#657F3D', '#A03E3E', '#8064A2'],
                     'vibrant': ['#e91e63', '#00bcd4', '#ff9800', '#43a047']
                 };
@@ -2083,6 +2135,13 @@
             // mirroring the on-screen preview styles above
             function getPrintStyleCSS(visualStyle) {
                 switch (visualStyle) {
+                    case 'outline':
+                        return `
+                            .main-heading { color: #9333ea; background: linear-gradient(90deg, #ecdcf9, #f9f4fe); border-left: 5px solid #bf9bea; border-radius: 8px; padding: 8px 14px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                            .sub-heading { color: #4f46e5; border-left: 3px solid #4f46e5; padding-left: 12px; }
+                            .item { font-weight: normal; color: #1f2937; }
+                            .note { color: #9ca3af; border-left: 3px solid #e5e7eb; padding-left: 12px; }
+                        `;
                     case 'classic':
                         return `
                             body { font-family: Georgia, 'Times New Roman', serif; }
@@ -2184,8 +2243,8 @@
                         if (alternateColors) {
                             const colors = getAlternateColors(idx + 1, visualStyle);
                             wrapper.className = 'color-coded-paragraph';
-                            wrapper.style.backgroundColor = colors.bg;
-                            wrapper.style.borderLeft = `8px solid ${colors.border}`;
+                            wrapper.style.background = colors.bg;
+                            wrapper.style.borderLeft = `${colors.borderWidth || '8px'} solid ${colors.border}`;
                             wrapper.style.borderRadius = '8px';
                             wrapper.style.padding = '8px 12px';
                             wrapper.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
@@ -2317,7 +2376,7 @@
                             // shorthand so it also replaces gradient backgrounds
                             const colors = getAlternateColors(sectionCounter, visualStyle);
                             currentSection.style.background = colors.bg;
-                            currentSection.style.borderLeft = `8px solid ${colors.border}`;
+                            currentSection.style.borderLeft = `${colors.borderWidth || '8px'} solid ${colors.border}`;
                             currentSection.style.color = colors.color;
                         }
                         
