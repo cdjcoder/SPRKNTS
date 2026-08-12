@@ -1624,10 +1624,11 @@
                     <head>
                         <meta charset="UTF-8">
                         <title>${filename}</title>
+                        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
                         <style>
-                            /* Reset and base styles */
+                            /* Reset and base styles — Inter matches the on-screen preview */
                             body {
-                                font-family: Arial, sans-serif;
+                                font-family: 'Inter', Arial, sans-serif;
                                 line-height: 1.4;
                                 color: #333;
                                 margin: 0;
@@ -1675,9 +1676,6 @@
                                 margin-left: 60px;
                                 margin-bottom: 8px;
                             }
-                            
-                            /* Overrides for the selected visual style */
-                            ${getPrintStyleCSS(visualStyle)}
                             
                             /* Color-coded section styles */
                             .color-coded {
@@ -1729,6 +1727,10 @@
                                 -webkit-print-color-adjust: exact;
                                 print-color-adjust: exact;
                             }
+                            
+                            /* Overrides for the selected visual style — kept last so
+                               they win over the generic color-coded rules above */
+                            ${getPrintStyleCSS(visualStyle)}
                             
                             /* Print-specific styles */
                             @media print {
@@ -2137,10 +2139,38 @@
                 switch (visualStyle) {
                     case 'outline':
                         return `
-                            .main-heading { color: #9333ea; background: linear-gradient(90deg, #ecdcf9, #f9f4fe); border-left: 5px solid #bf9bea; border-radius: 8px; padding: 8px 14px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                            .sub-heading { color: #4f46e5; border-left: 3px solid #4f46e5; padding-left: 12px; }
-                            .item { font-weight: normal; color: #1f2937; }
-                            .note { color: #9ca3af; border-left: 3px solid #e5e7eb; padding-left: 12px; }
+                            .main-heading, .main-heading.color-coded {
+                                font-size: 15pt;
+                                font-weight: 700;
+                                color: #9333ea;
+                                background: linear-gradient(90deg, #ecdcf9, #f9f4fe);
+                                border-left: 5px solid #bf9bea;
+                                border-radius: 8px;
+                                padding: 8px 14px;
+                                margin: 20px 0 14px;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            .sub-heading {
+                                font-size: 13pt;
+                                font-weight: 600;
+                                color: #4f46e5;
+                                margin: 14px 0 10px 8px;
+                                border-left: 3px solid #4f46e5;
+                                padding: 1px 0 1px 10px;
+                            }
+                            .item {
+                                font-weight: 500;
+                                color: #1f2937;
+                                margin: 10px 0 5px 30px;
+                            }
+                            .note {
+                                font-style: italic;
+                                color: #9ca3af;
+                                border-left: 3px solid #e5e7eb;
+                                padding-left: 10px;
+                                margin: 0 0 12px 44px;
+                            }
                         `;
                     case 'classic':
                         return `
@@ -2366,9 +2396,11 @@
                         if (alternateColors) {
                             // Style the current section directly without removing it
                             currentSection.style.fontSize = `${parseInt(fontSize) + 5}pt`; // Bigger font
-                            currentSection.style.padding = '5px 10px 5px 18px'; // Add padding with extra on left for border
+                            // Numbered Outline keeps its own banner geometry from the
+                            // reference design; other styles get the wider left inset
+                            currentSection.style.padding = visualStyle === 'outline' ? '8px 14px' : '5px 10px 5px 18px';
                             currentSection.style.fontWeight = 'bold';
-                            currentSection.style.marginBottom = '15px';
+                            currentSection.style.marginBottom = visualStyle === 'outline' ? '18px' : '15px';
                             currentSection.style.borderRadius = '8px';
                             currentSection.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
                             
