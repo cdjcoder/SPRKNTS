@@ -570,7 +570,11 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         }
 
-        /* Visual styles */
+        /* Visual styles — every option in the Visual Style dropdown has its
+           own distinct look for headings, items and speaker notes. These
+           rules are mirrored in the generated (print/PDF) document. */
+
+        /* Modern: purple/indigo accents, clean sans-serif */
         .modern-style .section-level-1 {
             font-weight: bold;
             font-size: 18pt;
@@ -599,13 +603,216 @@
 
         .modern-style .speaker-note {
             font-style: italic;
-            color: var(--text-secondary);
+            color: #667788;
             margin-left: 60px;
             display: block;
             font-size: 13pt;
             margin-bottom: 10px;
             padding-left: 10px;
             border-left: 2px solid rgba(147, 51, 234, 0.3);
+        }
+
+        /* Classic: traditional serif outline with centered small-caps headings */
+        .classic-style {
+            font-family: Georgia, 'Times New Roman', serif;
+        }
+
+        .classic-style .section-level-1 {
+            font-weight: bold;
+            font-size: 18pt;
+            color: #3e2c1c;
+            font-variant: small-caps;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 6px;
+            border-bottom: 3px double #8d6e63;
+        }
+
+        .classic-style .section-level-2 {
+            font-weight: bold;
+            font-size: 16pt;
+            color: #5d4037;
+            margin-left: 20px;
+            margin-bottom: 10px;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            text-decoration-color: rgba(141, 110, 99, 0.6);
+        }
+
+        .classic-style .section-level-3 {
+            font-weight: 600;
+            font-size: 14pt;
+            color: #2c2c2c;
+            margin-left: 40px;
+            margin-bottom: 5px;
+        }
+
+        .classic-style .speaker-note {
+            font-style: italic;
+            color: #7a6a58;
+            margin-left: 60px;
+            display: block;
+            font-size: 13pt;
+            margin-bottom: 10px;
+        }
+
+        /* Boardroom: monochrome corporate look with uppercase banner headings */
+        .boardroom-style .section-level-1 {
+            font-weight: 700;
+            font-size: 17pt;
+            color: #1c2833;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: #eceff1;
+            padding: 6px 12px;
+            border-left: 6px solid #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .boardroom-style .section-level-2 {
+            font-weight: 600;
+            font-size: 15pt;
+            color: #34495e;
+            margin-left: 20px;
+            margin-bottom: 10px;
+            padding: 2px 8px;
+            background: #f4f6f7;
+            border-left: 3px solid #7f8c8d;
+        }
+
+        .boardroom-style .section-level-3 {
+            font-weight: 600;
+            font-size: 14pt;
+            color: #212f3d;
+            margin-left: 40px;
+            margin-bottom: 5px;
+        }
+
+        .boardroom-style .speaker-note {
+            font-style: italic;
+            color: #707b7c;
+            margin-left: 60px;
+            display: block;
+            font-size: 13pt;
+            margin-bottom: 10px;
+            padding-left: 10px;
+            border-left: 2px dotted #b0bec5;
+        }
+
+        /* Boardroom (Full Color): corporate palette with gradient banner headings */
+        .boardroom-color-style .section-level-1 {
+            font-weight: 700;
+            font-size: 18pt;
+            color: #ffffff;
+            background: linear-gradient(90deg, #00457C, #0069b4);
+            padding: 6px 14px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .boardroom-color-style .section-level-2 {
+            font-weight: 600;
+            font-size: 16pt;
+            color: #657F3D;
+            margin-left: 20px;
+            margin-bottom: 10px;
+            padding: 2px 8px;
+            background: #f3f7ec;
+            border-left: 4px solid #657F3D;
+        }
+
+        .boardroom-color-style .section-level-3 {
+            font-weight: 500;
+            font-size: 14pt;
+            margin-left: 40px;
+            margin-bottom: 5px;
+        }
+
+        .boardroom-color-style .speaker-note {
+            font-style: italic;
+            color: #666666;
+            margin-left: 60px;
+            display: block;
+            font-size: 13pt;
+            margin-bottom: 10px;
+            padding-left: 10px;
+            border-left: 2px solid #8064A2;
+        }
+
+        /* Minimal: clean monochrome with hairline separators */
+        .minimal-style .section-level-1 {
+            font-weight: 700;
+            font-size: 18pt;
+            color: #111111;
+            letter-spacing: -0.5px;
+            margin-bottom: 15px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .minimal-style .section-level-2 {
+            font-weight: 600;
+            font-size: 15pt;
+            color: #444444;
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .minimal-style .section-level-3 {
+            font-weight: 500;
+            font-size: 14pt;
+            color: #222222;
+            margin-left: 40px;
+            margin-bottom: 5px;
+        }
+
+        .minimal-style .speaker-note {
+            color: #999999;
+            margin-left: 60px;
+            display: block;
+            font-size: 13pt;
+            margin-bottom: 10px;
+        }
+
+        /* Vibrant: bold, colorful headings for maximum at-a-glance contrast */
+        .vibrant-style .section-level-1 {
+            font-weight: 800;
+            font-size: 18pt;
+            color: #ffffff;
+            background: linear-gradient(90deg, #e91e63, #9c27b0);
+            padding: 6px 14px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .vibrant-style .section-level-2 {
+            font-weight: 700;
+            font-size: 16pt;
+            color: #00838f;
+            margin-left: 20px;
+            margin-bottom: 10px;
+            padding-left: 10px;
+            border-left: 4px solid #00bcd4;
+        }
+
+        .vibrant-style .section-level-3 {
+            font-weight: 600;
+            font-size: 14pt;
+            color: #e65100;
+            margin-left: 40px;
+            margin-bottom: 5px;
+        }
+
+        .vibrant-style .speaker-note {
+            font-style: italic;
+            color: #6a1b9a;
+            margin-left: 60px;
+            display: block;
+            font-size: 13pt;
+            margin-bottom: 10px;
+            padding-left: 10px;
+            border-left: 2px dashed #ce93d8;
         }
 
         /* Modal styles */
@@ -970,7 +1177,7 @@
                                     <input type="checkbox" id="alternateBg" checked>
                                     <label for="alternateBg"><strong>Color-Code Sections</strong></label>
                                     <span id="altColorStatus" style="margin-left: 5px; font-size: 12px; color: #27ae60; font-weight: bold;">(ON)</span>
-                                    <span class="tooltip">Toggle color-coding to dramatically highlight different sections for easier navigation!<br><small>(Only available for Modern and Boardroom-Color styles)</small></span>
+                                    <span class="tooltip">Toggle color-coding to dramatically highlight different sections for easier navigation!<br><small>(Only available for Modern, Boardroom (Full Color) and Vibrant styles)</small></span>
                                 </div>
                                 
                                 <div class="setting-group" data-feature="timing-estimates">
@@ -987,6 +1194,8 @@
                                         <option value="classic">Classic</option>
                                         <option value="boardroom">Boardroom</option>
                                         <option value="boardroom-color">Boardroom (Full Color)</option>
+                                        <option value="minimal">Minimal</option>
+                                        <option value="vibrant">Vibrant</option>
                                     </select>
                                     <span class="tooltip">Choose from different visual presentation styles</span>
                                 </div>
@@ -1178,6 +1387,11 @@
             // Initialize with sample text
             inputArea.value = sampleContent;
 
+            // Styles that support the Color-Code Sections feature
+            function styleSupportsColorCoding(style) {
+                return style === 'modern' || style === 'boardroom-color' || style === 'vibrant';
+            }
+            
             // Store the last color-coding state for styles that support it
             let lastColorCodingState = alternateBgCheckbox.checked;
             
@@ -1193,7 +1407,7 @@
                 
                 // Store the state if it's a style that supports color-coding
                 const currentStyle = visualStyleSelect.value;
-                if (currentStyle === 'modern' || currentStyle === 'boardroom-color') {
+                if (styleSupportsColorCoding(currentStyle)) {
                     lastColorCodingState = this.checked;
                 }
                 
@@ -1223,8 +1437,8 @@
                 const currentStyle = this.value;
                 
                 // Show/hide and adjust color coding based on visual style
-                if (currentStyle === 'classic' || currentStyle === 'boardroom') {
-                    // These styles don't support color-coding, so disable it
+                if (!styleSupportsColorCoding(currentStyle)) {
+                    // This style doesn't support color-coding, so disable it
                     colorCodeGroup.style.opacity = '0.5';
                     colorCodeGroup.style.pointerEvents = 'none';
                     alternateBgCheckbox.checked = false;
@@ -1384,16 +1598,13 @@
                                 margin-bottom: 20px;
                             }
                             
-                            /* Section styles */
+                            /* Section styles (base) */
                             .main-heading {
                                 font-size: 14pt;
                                 font-weight: bold;
                                 margin-top: 16px;
                                 margin-bottom: 8px;
-                                color: ${visualStyle === 'modern' ? '#3498db' : 
-                                      visualStyle === 'boardroom-color' ? '#00457C' : '#000'};
-                                ${visualStyle !== 'modern' && visualStyle !== 'boardroom-color' ? 
-                                  'border-bottom: 1px solid #000;' : ''}
+                                color: #000;
                                 padding-bottom: 3px;
                             }
                             
@@ -1402,16 +1613,7 @@
                                 font-weight: bold;
                                 margin-left: 20px;
                                 margin-bottom: 6px;
-                                color: ${visualStyle === 'modern' ? '#9b59b6' : '#000'};
-                                ${visualStyle === 'modern' || visualStyle === 'boardroom' || 
-                                  visualStyle === 'boardroom-color' ? 
-                                  'background-color: #f2f2f2; padding: 3px 5px;' : ''}
-                                ${visualStyle === 'modern' ? 
-                                  'border-left: 2px solid #9b59b6;' : 
-                                  visualStyle === 'boardroom-color' ? 
-                                  'border-left: 3px solid #657F3D;' : 
-                                  visualStyle === 'boardroom' ? 
-                                  'border-left: 3px solid #333;' : ''}
+                                color: #000;
                             }
                             
                             .item {
@@ -1427,11 +1629,10 @@
                                 color: #666;
                                 margin-left: 60px;
                                 margin-bottom: 8px;
-                                ${visualStyle === 'modern' ? 
-                                  'border-left: 1px solid #ddd; padding-left: 10px;' : 
-                                  visualStyle === 'boardroom-color' ? 
-                                  'border-left: 1px solid #8064A2; padding-left: 10px;' : ''}
                             }
+                            
+                            /* Overrides for the selected visual style */
+                            ${getPrintStyleCSS(visualStyle)}
                             
                             /* Color-coded section styles */
                             .color-coded {
@@ -1523,23 +1724,10 @@
                     let sectionCounter = 0;
                     
                     function sectionColorStyle(counter) {
-                        const even = counter % 2 === 0;
-                        let bg, border, color;
-                        if (visualStyle === 'modern') {
-                            bg = even ? '#e1f0fa' : '#f5eef8';
-                            border = even ? '#3498db' : '#9b59b6';
-                            color = even ? '#2980b9' : '#8e44ad';
-                        } else if (visualStyle === 'classic') {
-                            bg = even ? '#faf3e1' : '#eafaf1';
-                            border = even ? '#f39c12' : '#27ae60';
-                            color = even ? '#a66e19' : '#2ecc71';
-                        } else {
-                            // boardroom / boardroom-color
-                            bg = even ? '#e9eef2' : '#f9ebeb';
-                            border = even ? '#34495e' : '#c0392b';
-                            color = even ? '#2c3e50' : '#a93226';
-                        }
-                        return `background-color: ${bg}; border-left: 8px solid ${border}; color: ${color};`;
+                        const colors = getAlternateColors(counter, visualStyle);
+                        // 'background' shorthand (not background-color) so it also
+                        // replaces gradient backgrounds used by some styles
+                        return `background: ${colors.bg}; border-left: 8px solid ${colors.border}; color: ${colors.color};`;
                     }
                     
                     // Speech timing estimates (mirrors the preview behavior)
@@ -1596,40 +1784,15 @@
                             return `<div class="sub-heading">${trimmedLine}${timingBadge}</div>`;
                         }
                         else if (/^(\d+\.)/.test(trimmedLine)) {
-                            // Numbered item
-                            if (visualStyle === 'modern' || visualStyle === 'boardroom-color') {
-                                // For styles that use colored numbers
-                                const match = trimmedLine.match(/^(\d+)\.(.*)$/);
-                                if (match) {
-                                    const num = match[1];
-                                    const itemText = match[2].trim();
-                                    
-                                    // Determine color based on number
-                                    let numColor;
-                                    if (visualStyle === 'modern') {
-                                        switch (parseInt(num) % 3) {
-                                            case 0: numColor = '#27ae60'; break; // green
-                                            case 1: numColor = '#3498db'; break; // blue
-                                            case 2: numColor = '#e74c3c'; break; // red
-                                            default: numColor = '#9b59b6'; break; // purple
-                                        }
-                                    } else { // boardroom-color
-                                        switch (parseInt(num) % 4) {
-                                            case 0: numColor = '#00457C'; break; // blue
-                                            case 1: numColor = '#657F3D'; break; // green
-                                            case 2: numColor = '#A03E3E'; break; // red
-                                            case 3: numColor = '#8064A2'; break; // purple
-                                            default: numColor = '#00457C'; break;
-                                        }
-                                    }
-                                    
-                                    return `<div class="item"><span style="color: ${numColor}">${num}.</span> ${itemText}</div>`;
-                                } else {
-                                    return `<div class="item">${trimmedLine}</div>`;
+                            // Numbered item — some styles color the number
+                            const match = trimmedLine.match(/^(\d+)\.(.*)$/);
+                            if (match) {
+                                const numColor = getNumberColor(match[1], visualStyle);
+                                if (numColor) {
+                                    return `<div class="item"><span style="color: ${numColor}">${match[1]}.</span> ${match[2].trim()}</div>`;
                                 }
-                            } else {
-                                return `<div class="item">${trimmedLine}</div>`;
                             }
+                            return `<div class="item">${trimmedLine}</div>`;
                         }
                         else {
                             // Note/regular text
@@ -1888,11 +2051,80 @@
                     return even ?
                         { bg: '#e9eef2', border: '#34495e', color: '#2c3e50' } :
                         { bg: '#f9ebeb', border: '#c0392b', color: '#a93226' };
+                } else if (visualStyle === 'vibrant') {
+                    return even ?
+                        { bg: '#fce4ec', border: '#e91e63', color: '#c2185b' } :
+                        { bg: '#e0f7fa', border: '#00bcd4', color: '#00838f' };
+                } else if (visualStyle === 'minimal') {
+                    return even ?
+                        { bg: '#f5f5f5', border: '#9e9e9e', color: '#424242' } :
+                        { bg: '#eeeeee', border: '#616161', color: '#212121' };
                 }
                 // modern (default)
                 return even ?
                     { bg: '#e1f0fa', border: '#3498db', color: '#2980b9' } :
                     { bg: '#f5eef8', border: '#9b59b6', color: '#8e44ad' };
+            }
+            
+            // Color for a numbered item's number, or null when the style
+            // renders numbers in plain text
+            function getNumberColor(number, visualStyle) {
+                const palettes = {
+                    'modern': ['#27ae60', '#3498db', '#e74c3c'],
+                    'boardroom-color': ['#00457C', '#657F3D', '#A03E3E', '#8064A2'],
+                    'vibrant': ['#e91e63', '#00bcd4', '#ff9800', '#43a047']
+                };
+                const palette = palettes[visualStyle];
+                if (!palette) return null;
+                return palette[parseInt(number) % palette.length];
+            }
+            
+            // Per-style CSS overrides for the generated (print/PDF) document,
+            // mirroring the on-screen preview styles above
+            function getPrintStyleCSS(visualStyle) {
+                switch (visualStyle) {
+                    case 'classic':
+                        return `
+                            body { font-family: Georgia, 'Times New Roman', serif; }
+                            .main-heading { color: #3e2c1c; font-variant: small-caps; letter-spacing: 1px; text-align: center; border-bottom: 3px double #8d6e63; padding-bottom: 6px; }
+                            .sub-heading { color: #5d4037; text-decoration: underline; text-underline-offset: 4px; }
+                            .item { color: #2c2c2c; }
+                            .note { color: #7a6a58; }
+                        `;
+                    case 'boardroom':
+                        return `
+                            .main-heading { color: #1c2833; text-transform: uppercase; letter-spacing: 2px; background: #eceff1; padding: 6px 12px; border-left: 6px solid #2c3e50; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                            .sub-heading { color: #34495e; background: #f4f6f7; padding: 2px 8px; border-left: 3px solid #7f8c8d; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                            .item { color: #212f3d; }
+                            .note { color: #707b7c; border-left: 2px dotted #b0bec5; padding-left: 10px; }
+                        `;
+                    case 'boardroom-color':
+                        return `
+                            .main-heading { color: #ffffff; background: linear-gradient(90deg, #00457C, #0069b4); padding: 6px 14px; border-radius: 4px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                            .sub-heading { color: #657F3D; background: #f3f7ec; padding: 2px 8px; border-left: 4px solid #657F3D; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                            .note { border-left: 2px solid #8064A2; padding-left: 10px; }
+                        `;
+                    case 'minimal':
+                        return `
+                            .main-heading { color: #111111; letter-spacing: -0.5px; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; }
+                            .sub-heading { color: #444444; }
+                            .item { color: #222222; }
+                            .note { color: #999999; font-style: normal; }
+                        `;
+                    case 'vibrant':
+                        return `
+                            .main-heading { color: #ffffff; background: linear-gradient(90deg, #e91e63, #9c27b0); padding: 6px 14px; border-radius: 8px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                            .sub-heading { color: #00838f; border-left: 4px solid #00bcd4; padding-left: 10px; }
+                            .item { color: #e65100; }
+                            .note { color: #6a1b9a; border-left: 2px dashed #ce93d8; padding-left: 10px; }
+                        `;
+                    default: // modern
+                        return `
+                            .main-heading { color: #9333ea; border-bottom: 1px solid rgba(147, 51, 234, 0.35); }
+                            .sub-heading { color: #4f46e5; border-left: 2px solid #4f46e5; padding-left: 10px; }
+                            .note { border-left: 2px solid rgba(147, 51, 234, 0.3); padding-left: 10px; }
+                        `;
+                }
             }
             
             function countWords(str) {
@@ -2081,57 +2313,12 @@
                             currentSection.style.borderRadius = '8px';
                             currentSection.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
                             
-                            // Apply dramatically different styles for even/odd sections
-                            if (sectionCounter % 2 === 0) {
-                                if (visualStyle === 'modern') {
-                                    // Bold blue theme
-                                    currentSection.style.backgroundColor = '#e1f0fa';
-                                    currentSection.style.borderLeft = '8px solid #3498db';
-                                    currentSection.style.color = '#2980b9';
-                                } else if (visualStyle === 'classic') {
-                                    // Gold/tan theme
-                                    currentSection.style.backgroundColor = '#faf3e1';
-                                    currentSection.style.borderLeft = '8px solid #f39c12';
-                                    currentSection.style.color = '#a66e19';
-                                } else if (visualStyle === 'boardroom' || visualStyle === 'boardroom-color') {
-                                    // Professional gray/blue
-                                    currentSection.style.backgroundColor = '#e9eef2';
-                                    currentSection.style.borderLeft = '8px solid #34495e';
-                                    currentSection.style.color = '#2c3e50';
-                                }
-                            } else {
-                                if (visualStyle === 'modern') {
-                                    // Purple theme
-                                    currentSection.style.backgroundColor = '#f5eef8';
-                                    currentSection.style.borderLeft = '8px solid #9b59b6';
-                                    currentSection.style.color = '#8e44ad';
-                                } else if (visualStyle === 'classic') {
-                                    // Green theme
-                                    currentSection.style.backgroundColor = '#eafaf1';
-                                    currentSection.style.borderLeft = '8px solid #27ae60';
-                                    currentSection.style.color = '#2ecc71';
-                                } else if (visualStyle === 'boardroom' || visualStyle === 'boardroom-color') {
-                                    // Professional maroon
-                                    currentSection.style.backgroundColor = '#f9ebeb';
-                                    currentSection.style.borderLeft = '8px solid #c0392b';
-                                    currentSection.style.color = '#a93226';
-                                }
-                            }
-                            
-                            // Add color indicators inline (without removing anything)
-                            const indicator = document.createElement('span');
-                            indicator.textContent = ' SECTION ' + sectionCounter;
-                            indicator.style.fontSize = '11pt';
-                            indicator.style.color = 'white';
-                            indicator.style.display = 'inline-block';
-                            indicator.style.padding = '3px 8px';
-                            indicator.style.marginLeft = '10px';
-                            indicator.style.borderRadius = '4px';
-                            indicator.style.backgroundColor = sectionCounter % 2 === 0 ? '#3498db' : '#e74c3c';
-                            
-                            // Add the indicator to the section without removing anything
-                            currentSection.appendChild(document.createTextNode(' '));
-                            currentSection.appendChild(indicator);
+                            // Alternating palette for the selected style; 'background'
+                            // shorthand so it also replaces gradient backgrounds
+                            const colors = getAlternateColors(sectionCounter, visualStyle);
+                            currentSection.style.background = colors.bg;
+                            currentSection.style.borderLeft = `8px solid ${colors.border}`;
+                            currentSection.style.color = colors.color;
                         }
                         
                         currentSection.textContent = trimmedLine;
@@ -2229,39 +2416,12 @@
                         currentItem.className = 'section-level-3';
                         currentItem.style.fontSize = `${parseInt(fontSize)}pt`;
                         
-                        // Add colored bullet points for modern or boardroom-color styles
-                        if (visualStyle === 'modern' || visualStyle === 'boardroom-color') {
-                            // Extract the number
-                            const match = trimmedLine.match(/^(\d+)\./);
-                            if (match) {
-                                const number = match[1];
-                                const restOfText = trimmedLine.substring(match[0].length).trim();
-                                
-                                // Choose color based on number
-                                let bulletColor;
-                                if (visualStyle === 'modern') {
-                                    // Modern style colors
-                                    switch (parseInt(number) % 3) {
-                                        case 0: bulletColor = 'var(--green)'; break;
-                                        case 1: bulletColor = 'var(--blue)'; break;
-                                        case 2: bulletColor = 'var(--red)'; break;
-                                        default: bulletColor = 'var(--purple)';
-                                    }
-                                } else {
-                                    // Boardroom-color style uses multiple colors
-                                    switch (parseInt(number) % 4) {
-                                        case 0: bulletColor = '#00457C'; break; // Blue
-                                        case 1: bulletColor = '#657F3D'; break; // Green
-                                        case 2: bulletColor = '#A03E3E'; break; // Red
-                                        case 3: bulletColor = '#8064A2'; break; // Purple
-                                        default: bulletColor = '#00457C';
-                                    }
-                                }
-                                
-                                currentItem.innerHTML = `<span style="color: ${bulletColor}; font-weight: bold;">${number}.</span> ${restOfText}`;
-                            } else {
-                                currentItem.textContent = trimmedLine;
-                            }
+                        // Some styles render the item number in a rotating color
+                        const numberMatch = trimmedLine.match(/^(\d+)\./);
+                        const bulletColor = numberMatch ? getNumberColor(numberMatch[1], visualStyle) : null;
+                        if (numberMatch && bulletColor) {
+                            const restOfText = trimmedLine.substring(numberMatch[0].length).trim();
+                            currentItem.innerHTML = `<span style="color: ${bulletColor}; font-weight: bold;">${numberMatch[1]}.</span> ${restOfText}`;
                         } else {
                             currentItem.textContent = trimmedLine;
                         }
