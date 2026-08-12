@@ -574,6 +574,14 @@
            own distinct look for headings, items and speaker notes. These
            rules are mirrored in the generated (print/PDF) document. */
 
+        /* Fourth outline level (a., b., c. — specific examples), shared
+           default for all styles; individual styles may override it */
+        .preview-page .section-level-4 {
+            font-weight: 500;
+            margin-left: 60px;
+            margin-bottom: 5px;
+        }
+
         /* Modern: purple/indigo accents, clean sans-serif */
         .modern-style .section-level-1 {
             font-weight: bold;
@@ -610,6 +618,105 @@
             margin-bottom: 10px;
             padding-left: 10px;
             border-left: 2px solid rgba(147, 51, 234, 0.3);
+        }
+
+        /* Numbered Outline: soft rounded gradient banners for main sections,
+           indigo subheadings with a thin bar, bold dark item numbers and
+           light-gray note bars. Alternating purple/blue banner colors come
+           from the color-coding palette (on by default for this style). */
+        .outline-style .section-level-1 {
+            font-weight: 700;
+            font-size: 17pt;
+            color: #9333ea;
+            background: linear-gradient(90deg, #ecdcf9, #f9f4fe);
+            border-left: 5px solid #bf9bea;
+            border-radius: 8px;
+            padding: 8px 14px;
+            margin-bottom: 18px;
+        }
+
+        .outline-style .section-level-2 {
+            font-weight: 600;
+            font-size: 15pt;
+            color: #4f46e5;
+            margin-left: 14px;
+            margin-bottom: 12px;
+            padding: 2px 0 2px 12px;
+            border-left: 3px solid #4f46e5;
+        }
+
+        .outline-style .section-level-3 {
+            font-weight: 500;
+            font-size: 13pt;
+            color: #1f2937;
+            margin-left: 34px;
+            margin-bottom: 6px;
+        }
+
+        .outline-style .section-level-4 {
+            font-weight: 400;
+            font-size: 12pt;
+            color: #374151;
+            margin-left: 52px;
+            margin-bottom: 6px;
+        }
+
+        .outline-style .speaker-note {
+            font-style: italic;
+            color: #9ca3af;
+            margin-left: 52px;
+            display: block;
+            font-size: 12pt;
+            margin-bottom: 12px;
+            padding-left: 12px;
+            border-left: 3px solid #e5e7eb;
+        }
+
+        /* Alphanumeric Outline: strict formal outline structure —
+           I. (main topics), A. (major sub-points), 1. (supporting details),
+           a. (specific examples) — expressed purely through typography and
+           a rigid downward indentation ladder */
+        .alphanumeric-style .section-level-1 {
+            font-weight: 700;
+            font-size: 16pt;
+            color: #1a1a1a;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #cccccc;
+        }
+
+        .alphanumeric-style .section-level-2 {
+            font-weight: 600;
+            font-size: 14pt;
+            color: #2c2c2c;
+            margin-left: 28px;
+            margin-bottom: 8px;
+        }
+
+        .alphanumeric-style .section-level-3 {
+            font-weight: 500;
+            font-size: 13pt;
+            color: #3c3c3c;
+            margin-left: 56px;
+            margin-bottom: 6px;
+        }
+
+        .alphanumeric-style .section-level-4 {
+            font-weight: 400;
+            font-size: 12.5pt;
+            color: #4a4a4a;
+            margin-left: 84px;
+            margin-bottom: 6px;
+        }
+
+        .alphanumeric-style .speaker-note {
+            font-style: italic;
+            color: #8a8a8a;
+            margin-left: 104px;
+            display: block;
+            font-size: 12pt;
+            margin-bottom: 8px;
         }
 
         /* Classic: traditional serif outline with centered small-caps headings */
@@ -1177,7 +1284,7 @@
                                     <input type="checkbox" id="alternateBg" checked>
                                     <label for="alternateBg"><strong>Color-Code Sections</strong></label>
                                     <span id="altColorStatus" style="margin-left: 5px; font-size: 12px; color: #27ae60; font-weight: bold;">(ON)</span>
-                                    <span class="tooltip">Toggle color-coding to dramatically highlight different sections for easier navigation!<br><small>(Only available for Modern, Boardroom (Full Color) and Vibrant styles)</small></span>
+                                    <span class="tooltip">Toggle color-coding to dramatically highlight different sections for easier navigation!<br><small>(Only available for Modern, Numbered Outline, Boardroom (Full Color) and Vibrant styles)</small></span>
                                 </div>
                                 
                                 <div class="setting-group" data-feature="timing-estimates">
@@ -1191,6 +1298,8 @@
                                     <label for="visualStyle">Visual Style</label>
                                     <select id="visualStyle">
                                         <option value="modern" selected>Modern</option>
+                                        <option value="outline">Numbered Outline</option>
+                                        <option value="alphanumeric">Alphanumeric Outline</option>
                                         <option value="classic">Classic</option>
                                         <option value="boardroom">Boardroom</option>
                                         <option value="boardroom-color">Boardroom (Full Color)</option>
@@ -1201,7 +1310,7 @@
                                 </div>
                             </div>
                             
-                            <textarea id="inputArea" placeholder="Paste your content here. Use formatting like:&#10;&#10;I. MAIN SECTION&#10;A. Subsection&#10;1. Item&#10;Speaker note or additional text&#10;&#10;Try the sample content to see how it works."></textarea>
+                            <textarea id="inputArea" placeholder="Paste your content here. Use formatting like:&#10;&#10;I. MAIN SECTION&#10;A. Subsection&#10;1. Item&#10;a. Specific example&#10;Speaker note or additional text&#10;&#10;Try the sample content to see how it works."></textarea>
                         </div>
                     </div>
                 </div>
@@ -1382,14 +1491,14 @@
             const closeModal = document.getElementById('closeModal');
 
             // Sample content to initialize with
-            const sampleContent = `I. OPENING REMARKS\nA. Welcome and Introduction\n1. Thank everyone for joining today's session\nHighlight importance of this topic for our organization\n2. Review agenda and timeline\nMention materials available in digital handouts\n\nII. QUARTERLY PERFORMANCE REVIEW\nA. Financial Results\n1. Revenue growth exceeded targets by 12%\nNote significant improvement in enterprise sector\n2. Expenses remained under budget\nPraise team for cost-saving initiatives\n\nB. Key Accomplishments\n1. Successfully launched new product line\nAsk marketing to share customer feedback stats\n2. Completed office expansion ahead of schedule\nThank facilities team for seamless transition\n\nIII. UPCOMING INITIATIVES\nA. Strategic Planning\n1. Introduce new 5-year roadmap\nRequest department heads to schedule follow-up meetings\n2. Discuss market expansion opportunities\nRaise question about competitive landscape`;
+            const sampleContent = `I. OPENING REMARKS\nA. Welcome and Introduction\n1. Thank everyone for joining today's session\nHighlight importance of this topic for our organization\n2. Review agenda and timeline\nMention materials available in digital handouts\n\nII. QUARTERLY PERFORMANCE REVIEW\nA. Financial Results\n1. Revenue growth exceeded targets by 12%\nNote significant improvement in enterprise sector\n2. Expenses remained under budget\nPraise team for cost-saving initiatives\n\nB. Key Accomplishments\n1. Successfully launched new product line\na. Enterprise tier exceeded first-month forecasts\nb. Early customer reviews averaging 4.8 stars\nAsk marketing to share customer feedback stats\n2. Completed office expansion ahead of schedule\nThank facilities team for seamless transition\n\nIII. UPCOMING INITIATIVES\nA. Strategic Planning\n1. Introduce new 5-year roadmap\nRequest department heads to schedule follow-up meetings\n2. Discuss market expansion opportunities\nRaise question about competitive landscape`;
 
             // Initialize with sample text
             inputArea.value = sampleContent;
 
             // Styles that support the Color-Code Sections feature
             function styleSupportsColorCoding(style) {
-                return style === 'modern' || style === 'boardroom-color' || style === 'vibrant';
+                return style === 'modern' || style === 'outline' || style === 'boardroom-color' || style === 'vibrant';
             }
             
             // Store the last color-coding state for styles that support it
@@ -1579,10 +1688,11 @@
                     <head>
                         <meta charset="UTF-8">
                         <title>${filename}</title>
+                        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
                         <style>
-                            /* Reset and base styles */
+                            /* Reset and base styles — Inter matches the on-screen preview */
                             body {
-                                font-family: Arial, sans-serif;
+                                font-family: 'Inter', Arial, sans-serif;
                                 line-height: 1.4;
                                 color: #333;
                                 margin: 0;
@@ -1623,6 +1733,12 @@
                                 margin-bottom: 4px;
                             }
                             
+                            .sub-item {
+                                font-size: 11pt;
+                                margin-left: 60px;
+                                margin-bottom: 4px;
+                            }
+                            
                             .note {
                                 font-size: 11pt;
                                 font-style: italic;
@@ -1630,9 +1746,6 @@
                                 margin-left: 60px;
                                 margin-bottom: 8px;
                             }
-                            
-                            /* Overrides for the selected visual style */
-                            ${getPrintStyleCSS(visualStyle)}
                             
                             /* Color-coded section styles */
                             .color-coded {
@@ -1685,6 +1798,10 @@
                                 print-color-adjust: exact;
                             }
                             
+                            /* Overrides for the selected visual style — kept last so
+                               they win over the generic color-coded rules above */
+                            ${getPrintStyleCSS(visualStyle)}
+                            
                             /* Print-specific styles */
                             @media print {
                                 @page {
@@ -1727,7 +1844,7 @@
                         const colors = getAlternateColors(counter, visualStyle);
                         // 'background' shorthand (not background-color) so it also
                         // replaces gradient backgrounds used by some styles
-                        return `background: ${colors.bg}; border-left: 8px solid ${colors.border}; color: ${colors.color};`;
+                        return `background: ${colors.bg}; border-left: ${colors.borderWidth || '8px'} solid ${colors.border}; color: ${colors.color};`;
                     }
                     
                     // Speech timing estimates (mirrors the preview behavior)
@@ -1789,10 +1906,18 @@
                             if (match) {
                                 const numColor = getNumberColor(match[1], visualStyle);
                                 if (numColor) {
-                                    return `<div class="item"><span style="color: ${numColor}">${match[1]}.</span> ${match[2].trim()}</div>`;
+                                    return `<div class="item"><span style="color: ${numColor}; font-weight: bold;">${match[1]}.</span> ${match[2].trim()}</div>`;
                                 }
                             }
                             return `<div class="item">${trimmedLine}</div>`;
+                        }
+                        else if (/^[a-z]\.\s/.test(trimmedLine)) {
+                            // Lowercase-letter sub-item (a, b, c — specific examples)
+                            if (visualStyle === 'outline') {
+                                const m = trimmedLine.match(/^([a-z])\.\s*(.*)$/);
+                                return `<div class="sub-item"><span style="color: #111827; font-weight: bold;">${m[1]}.</span> ${m[2]}</div>`;
+                            }
+                            return `<div class="sub-item">${trimmedLine}</div>`;
                         }
                         else {
                             // Note/regular text
@@ -2040,10 +2165,16 @@
                 container.appendChild(previewPage);
             }
             
-            // Alternating color palette shared by sections and paragraph blocks
+            // Alternating color palette shared by sections and paragraph blocks.
+            // 'bg' may be any CSS background value (including gradients) and
+            // 'borderWidth' optionally overrides the default 8px accent bar.
             function getAlternateColors(counter, visualStyle) {
                 const even = counter % 2 === 0;
-                if (visualStyle === 'classic') {
+                if (visualStyle === 'outline') {
+                    return even ?
+                        { bg: 'linear-gradient(90deg, #d9ecf8, #f0f8fe)', border: '#7ab8e0', color: '#0f628f', borderWidth: '5px' } :
+                        { bg: 'linear-gradient(90deg, #ecdcf9, #f9f4fe)', border: '#bf9bea', color: '#9333ea', borderWidth: '5px' };
+                } else if (visualStyle === 'classic') {
                     return even ?
                         { bg: '#faf3e1', border: '#f39c12', color: '#a66e19' } :
                         { bg: '#eafaf1', border: '#27ae60', color: '#2ecc71' };
@@ -2071,6 +2202,7 @@
             function getNumberColor(number, visualStyle) {
                 const palettes = {
                     'modern': ['#27ae60', '#3498db', '#e74c3c'],
+                    'outline': ['#111827'], // constant dark number, emphasized by bold weight
                     'boardroom-color': ['#00457C', '#657F3D', '#A03E3E', '#8064A2'],
                     'vibrant': ['#e91e63', '#00bcd4', '#ff9800', '#43a047']
                 };
@@ -2083,6 +2215,74 @@
             // mirroring the on-screen preview styles above
             function getPrintStyleCSS(visualStyle) {
                 switch (visualStyle) {
+                    case 'outline':
+                        return `
+                            .main-heading, .main-heading.color-coded {
+                                font-size: 15pt;
+                                font-weight: 700;
+                                color: #9333ea;
+                                background: linear-gradient(90deg, #ecdcf9, #f9f4fe);
+                                border-left: 5px solid #bf9bea;
+                                border-radius: 8px;
+                                padding: 8px 14px;
+                                margin: 20px 0 14px;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            .sub-heading {
+                                font-size: 13pt;
+                                font-weight: 600;
+                                color: #4f46e5;
+                                margin: 14px 0 10px 8px;
+                                border-left: 3px solid #4f46e5;
+                                padding: 1px 0 1px 10px;
+                            }
+                            .item {
+                                font-weight: 500;
+                                color: #1f2937;
+                                margin: 10px 0 5px 30px;
+                            }
+                            .sub-item {
+                                font-weight: 400;
+                                color: #374151;
+                                margin: 0 0 5px 44px;
+                            }
+                            .note {
+                                font-style: italic;
+                                color: #9ca3af;
+                                border-left: 3px solid #e5e7eb;
+                                padding-left: 10px;
+                                margin: 0 0 12px 44px;
+                            }
+                        `;
+                    case 'alphanumeric':
+                        return `
+                            .main-heading {
+                                color: #1a1a1a;
+                                letter-spacing: 0.5px;
+                                border-bottom: 1px solid #cccccc;
+                                padding-bottom: 4px;
+                                margin: 18px 0 10px;
+                            }
+                            .sub-heading {
+                                font-weight: 600;
+                                color: #2c2c2c;
+                                margin-left: 25px;
+                            }
+                            .item {
+                                font-weight: 500;
+                                color: #3c3c3c;
+                                margin-left: 50px;
+                            }
+                            .sub-item {
+                                color: #4a4a4a;
+                                margin-left: 75px;
+                            }
+                            .note {
+                                color: #8a8a8a;
+                                margin-left: 95px;
+                            }
+                        `;
                     case 'classic':
                         return `
                             body { font-family: Georgia, 'Times New Roman', serif; }
@@ -2184,8 +2384,8 @@
                         if (alternateColors) {
                             const colors = getAlternateColors(idx + 1, visualStyle);
                             wrapper.className = 'color-coded-paragraph';
-                            wrapper.style.backgroundColor = colors.bg;
-                            wrapper.style.borderLeft = `8px solid ${colors.border}`;
+                            wrapper.style.background = colors.bg;
+                            wrapper.style.borderLeft = `${colors.borderWidth || '8px'} solid ${colors.border}`;
                             wrapper.style.borderRadius = '8px';
                             wrapper.style.padding = '8px 12px';
                             wrapper.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
@@ -2307,9 +2507,11 @@
                         if (alternateColors) {
                             // Style the current section directly without removing it
                             currentSection.style.fontSize = `${parseInt(fontSize) + 5}pt`; // Bigger font
-                            currentSection.style.padding = '5px 10px 5px 18px'; // Add padding with extra on left for border
+                            // Numbered Outline keeps its own banner geometry from the
+                            // reference design; other styles get the wider left inset
+                            currentSection.style.padding = visualStyle === 'outline' ? '8px 14px' : '5px 10px 5px 18px';
                             currentSection.style.fontWeight = 'bold';
-                            currentSection.style.marginBottom = '15px';
+                            currentSection.style.marginBottom = visualStyle === 'outline' ? '18px' : '15px';
                             currentSection.style.borderRadius = '8px';
                             currentSection.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
                             
@@ -2317,7 +2519,7 @@
                             // shorthand so it also replaces gradient backgrounds
                             const colors = getAlternateColors(sectionCounter, visualStyle);
                             currentSection.style.background = colors.bg;
-                            currentSection.style.borderLeft = `8px solid ${colors.border}`;
+                            currentSection.style.borderLeft = `${colors.borderWidth || '8px'} solid ${colors.border}`;
                             currentSection.style.color = colors.color;
                         }
                         
@@ -2429,6 +2631,26 @@
                         container.appendChild(currentItem);
                         
                         // Reset notes
+                        notes = [];
+                    }
+                    else if (/^[a-z]\.\s/.test(trimmedLine)) {
+                        // Lowercase-letter sub-item (a, b, c — specific examples),
+                        // the fourth level of an alphanumeric outline
+                        renderCurrentContent(container);
+                        
+                        const subItem = document.createElement('div');
+                        subItem.className = 'section-level-4';
+                        subItem.style.fontSize = `${parseInt(fontSize)}pt`;
+                        
+                        if (visualStyle === 'outline') {
+                            // Match the Numbered Outline items: bold dark marker, regular text
+                            const m = trimmedLine.match(/^([a-z])\.\s*(.*)$/);
+                            subItem.innerHTML = `<span style="color: #111827; font-weight: bold;">${m[1]}.</span> ${m[2]}`;
+                        } else {
+                            subItem.textContent = trimmedLine;
+                        }
+                        
+                        container.appendChild(subItem);
                         notes = [];
                     }
                     else {
